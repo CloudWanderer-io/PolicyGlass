@@ -1,21 +1,43 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, TypeVar, Union
 from pydantic import BaseModel, validator
 from .utils import to_camel
+
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
 
 
 class RawEffect(str):
     ...
 
 
-class RawAction(str):
+class BaseArp(str):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot compare {self.__class__} and {other.__class__}")
+        return self.lower() == other.lower()
+
+
+class RawAction(BaseArp):
     ...
 
 
-class RawResource(str):
+class RawResource(BaseArp):
     ...
 
 
-class RawPrincipal(str):
+class RawPrincipal(dict[_KT, _VT]):
+    ...
+
+
+class RawPrincipalType(str):
+    ...
+
+
+class RawPrincipalValue(str):
+    ...
+
+
+class RawCondition(dict[_KT, _VT]):
     ...
 
 
@@ -31,19 +53,15 @@ class RawConditionValue(str):
     ...
 
 
-class Condition(BaseModel):
-    __root__: Dict[str, Dict[str, Union[str, List[str]]]]
-
-
 class Statement(BaseModel):
     effect: RawEffect
     action: Optional[List[RawAction]]
     not_action: Optional[List[RawAction]]
     resource: Optional[List[RawResource]]
     not_resource: Optional[List[RawResource]]
-    condition: Optional[Dict[RawConditionOperator, Dict[RawConditionKey, List[RawConditionValue]]]]
-    principal: Optional[Dict[str, List[RawPrincipal]]]
-    not_principal: Optional[Dict[str, List[RawPrincipal]]]
+    principal: Optional[RawPrincipal[RawPrincipalType, List[RawPrincipalValue]]]
+    not_principal: Optional[RawPrincipal[RawPrincipalType, List[RawPrincipalValue]]]
+    condition: Optional[RawCondition[RawConditionOperator, Dict[RawConditionKey, List[RawConditionValue]]]]
 
     class Config:
         alias_generator = to_camel

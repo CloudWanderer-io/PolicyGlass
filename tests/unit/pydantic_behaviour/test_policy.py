@@ -42,8 +42,8 @@ POLICIES = {
             {
                 "Effect": "Allow",
                 "Action": ["ec2:AttachVolume"],
-                "Condition": {"ArnEquals": {"ec2:SourceInstanceARN": ["arn:aws:ec2:*:*:instance/instance-id"]}},
                 "Principal": {"AWS": ["arn:aws:iam::123456789012:role/role-name"]},
+                "Condition": {"ArnEquals": {"ec2:SourceInstanceARN": ["arn:aws:ec2:*:*:instance/instance-id"]}},
             }
         ],
     },
