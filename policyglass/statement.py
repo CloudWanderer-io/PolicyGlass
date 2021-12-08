@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator
 
 from .action import Action
 from .condition import Condition, ConditionKey, ConditionOperator, ConditionValue
-from .principal import PrincipalsCollection, PrincipalType, PrincipalValue
+from .principal import Principal, PrincipalType, PrincipalValue
 from .resource import Resource
 from .utils import to_pascal
 
@@ -27,8 +27,8 @@ class Statement(BaseModel):
     not_action: Optional[List[Action]]
     resource: Optional[List[Resource]]
     not_resource: Optional[List[Resource]]
-    principal: Optional[PrincipalsCollection]
-    not_principal: Optional[PrincipalsCollection]
+    principal: Optional[Principal]
+    not_principal: Optional[Principal]
     condition: Optional[Condition]
 
     class Config:

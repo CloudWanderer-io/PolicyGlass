@@ -2,7 +2,7 @@
 from .action import Action
 from .condition import Condition, ConditionKey, ConditionOperator, ConditionShard, ConditionValue
 from .policy import Policy
-from .principal import PrincipalsCollection, PrincipalType, PrincipalValue
+from .principal import Principal, PrincipalType, PrincipalValue
 from .resource import Resource
 from .statement import Statement
 
@@ -12,7 +12,7 @@ __all__ = [
     "Principal",
     "Action",
     "Resource",
-    "PrincipalsCollection",
+    "Principal",
     "PrincipalType",
     "PrincipalValue",
     "Condition",
