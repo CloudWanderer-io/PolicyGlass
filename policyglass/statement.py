@@ -1,67 +1,109 @@
 from typing import Dict, List, Optional, TypeVar, Union
 from pydantic import BaseModel, validator
+
 from .utils import to_camel
 
-_KT = TypeVar("_KT")
-_VT = TypeVar("_VT")
 
-
-class RawEffect(str):
+class Effect(str):
     ...
 
 
-class BaseArp(str):
+class CaseInsensitiveString(str):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__} and {other.__class__}")
         return self.lower() == other.lower()
 
 
-class RawAction(BaseArp):
+class Action(CaseInsensitiveString):
+    """Actions are case insensitive.
+
+    "The prefix and the action name are case insensitive"
+    `IAM JSON policy elements: Action <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_action.html`__
+    """
+
+
+class Resource(str):
+    """A resource ARN may be case sensitive or case insensitive depending on the resource type."""
+
+
+class PrincipalType(str):
     ...
 
 
-class RawResource(BaseArp):
+class PrincipalValue(str):
     ...
 
 
-class RawPrincipal(dict[_KT, _VT]):
+class PrincipalsCollection(dict[PrincipalType, PrincipalValue]):
     ...
 
 
-class RawPrincipalType(str):
+class ConditionKey(CaseInsensitiveString):
+    """Condition Keys are case insensitive.
+
+    "Condition key names are not case-sensitive."
+    - `IAM Reference Policy Elements <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition.html>`__
+    """
+
     ...
 
 
-class RawPrincipalValue(str):
+class ConditionOperator(CaseInsensitiveString):
     ...
 
 
-class RawCondition(dict[_KT, _VT]):
+class ConditionValue(str):
+    """Condition values may or may not be case sensitive depending on the operator."""
+
     ...
 
 
-class RawConditionKey(str):
-    ...
+class ConditionShard:
+    def __init__(self, key: ConditionKey, operator: ConditionOperator, values: List[ConditionValue]) -> None:
+        self.key = key
+        self.operator = operator
+        self.values = values
+
+    @classmethod
+    def factory(cls, condition: "Condition") -> List["ConditionShard"]:
+        result = []
+        for key, operator_values in condition.items():
+            for operator, values in operator_values.items():
+                result.append(
+                    ConditionShard(
+                        ConditionKey(key), ConditionOperator(operator), [ConditionValue(value) for value in values]
+                    )
+                )
+        return result
+
+    def __eq__(self, other: "ConditionShard") -> bool:
+        return self.key == other.key and self.operator == other.operator and self.values == other.values
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}(" f"key='{self.key}', " f"operator='{self.operator}', " f"values={self.values})"
+        )
 
 
-class RawConditionOperator(str):
-    ...
+class Condition(dict[ConditionKey, dict[ConditionKey, List[ConditionValue]]]):
+    @property
+    def condition_shards(self) -> List[ConditionShard]:
+        return ConditionShard.factory(self)
 
-
-class RawConditionValue(str):
-    ...
+    def __eq__(self, other: "Condition") -> bool:
+        return self.condition_shards == other.condition_shards
 
 
 class Statement(BaseModel):
-    effect: RawEffect
-    action: Optional[List[RawAction]]
-    not_action: Optional[List[RawAction]]
-    resource: Optional[List[RawResource]]
-    not_resource: Optional[List[RawResource]]
-    principal: Optional[RawPrincipal[RawPrincipalType, List[RawPrincipalValue]]]
-    not_principal: Optional[RawPrincipal[RawPrincipalType, List[RawPrincipalValue]]]
-    condition: Optional[RawCondition[RawConditionOperator, Dict[RawConditionKey, List[RawConditionValue]]]]
+    effect: Effect
+    action: Optional[List[Action]]
+    not_action: Optional[List[Action]]
+    resource: Optional[List[Resource]]
+    not_resource: Optional[List[Resource]]
+    principal: Optional[PrincipalsCollection[PrincipalType, List[PrincipalValue]]]
+    not_principal: Optional[PrincipalsCollection[PrincipalType, List[PrincipalValue]]]
+    condition: Optional[Condition[ConditionKey, dict[ConditionKey, List[ConditionValue]]]]
 
     class Config:
         alias_generator = to_camel
