@@ -1,40 +1,6 @@
 import pytest
 
-from policyglass import Action, Condition, ConditionShard, Resource
-
-ACTION_MATCH_SCENARIOS = {"exactly_equal": ["s3:*", "s3:*"], "case_unequal": ["S3:*", "s3:*"]}
-
-
-@pytest.mark.parametrize("_, scenario", ACTION_MATCH_SCENARIOS.items())
-def test_action_equality(_, scenario):
-    assert Action(scenario[0]) == Action(scenario[1])
-
-
-RESOURCE_SCENARIOS = {
-    "exactly_equal": [
-        "arn:aws:iam::123456789012:role/role-name",
-        "arn:aws:iam::123456789012:role/role-name",
-    ],
-}
-
-
-@pytest.mark.parametrize("_, scenario", RESOURCE_SCENARIOS.items())
-def test_resource_equality(_, scenario):
-    assert Resource(scenario[0]) == Resource(scenario[1])
-
-
-RESOURCE_NOT_MATCH_SCENARIOS = {
-    "case_unequal": [
-        "arn:aws:iam::123456789012:role/role-name",
-        "arn:aws:iam::123456789012:role/Role-Name",
-    ],
-}
-
-
-@pytest.mark.parametrize("_, scenario", RESOURCE_NOT_MATCH_SCENARIOS.items())
-def test_resource_inequality(_, scenario):
-    assert Resource(scenario[0]) != Resource(scenario[1])
-
+from policyglass import Condition, ConditionShard
 
 CONDITION_MATCH_SCENARIOS = {
     "exactly_equal": [
