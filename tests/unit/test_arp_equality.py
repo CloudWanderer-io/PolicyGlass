@@ -1,5 +1,6 @@
-from policyglass import Action, Resource, Condition, ConditionKey, ConditionOperator, ConditionValue, ConditionShard
 import pytest
+
+from policyglass import Action, Condition, ConditionShard, Resource
 
 ACTION_MATCH_SCENARIOS = {"exactly_equal": ["s3:*", "s3:*"], "case_unequal": ["S3:*", "s3:*"]}
 
