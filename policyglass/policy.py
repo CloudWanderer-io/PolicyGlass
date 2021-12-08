@@ -1,15 +1,22 @@
+"""Core Policy class."""
 from typing import List
+
 from pydantic import BaseModel
+
 from .statement import Statement
-from .utils import to_camel
+from .utils import to_pascal
 
 
 class Policy(BaseModel):
+    """Main policy class."""
+
     version: str
     statement: List[Statement]
 
     class Config:
-        alias_generator = to_camel
+        """Configure the pydantic BaseModel."""
 
-    def policy_json(self):
+        alias_generator = to_pascal
+
+    def policy_json(self) -> str:
         return self.json(by_alias=True, exclude_none=True)

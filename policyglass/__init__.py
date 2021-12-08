@@ -1,14 +1,15 @@
+"""PolicyGlass."""
 from .policy import Policy
 from .statement import (
-    Statement,
     Action,
-    Resource,
-    PrincipalsCollection,
     Condition,
     ConditionKey,
     ConditionOperator,
-    ConditionValue,
     ConditionShard,
+    ConditionValue,
+    PrincipalsCollection,
+    Resource,
+    Statement,
 )
 
 __all__ = [
