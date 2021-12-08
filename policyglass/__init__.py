@@ -1,16 +1,10 @@
 """PolicyGlass."""
+from .action import Action
+from .condition import Condition, ConditionKey, ConditionOperator, ConditionShard, ConditionValue
 from .policy import Policy
-from .statement import (
-    Action,
-    Condition,
-    ConditionKey,
-    ConditionOperator,
-    ConditionShard,
-    ConditionValue,
-    PrincipalsCollection,
-    Resource,
-    Statement,
-)
+from .principal import PrincipalsCollection, PrincipalType, PrincipalValue
+from .resource import Resource
+from .statement import Statement
 
 __all__ = [
     "Policy",
@@ -19,6 +13,8 @@ __all__ = [
     "Action",
     "Resource",
     "PrincipalsCollection",
+    "PrincipalType",
+    "PrincipalValue",
     "Condition",
     "ConditionKey",
     "ConditionOperator",
