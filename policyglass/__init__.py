@@ -1,5 +1,5 @@
 """PolicyGlass."""
-from .action import Action
+from .action import Action, EffectiveAction
 from .condition import Condition, ConditionKey, ConditionOperator, ConditionShard, ConditionValue
 from .policy import Policy
 from .principal import Principal, PrincipalType, PrincipalValue
@@ -20,4 +20,5 @@ __all__ = [
     "ConditionOperator",
     "ConditionValue",
     "ConditionShard",
+    "EffectiveAction",
 ]

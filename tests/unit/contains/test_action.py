@@ -4,6 +4,7 @@ from policyglass import Action
 
 ACTION_IN_SCENARIOS = {
     "smaller": ["s3:get*", "s3:*"],
+    "smaller_mismatching_case": ["s3:get*", "S3:*"],
 }
 
 
