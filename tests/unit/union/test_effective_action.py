@@ -14,3 +14,17 @@ def test_union_simple():
     assert EffectiveAction(Action("s3:*")).union(EffectiveAction(Action("s3:getObject"))) == [
         EffectiveAction(Action("s3:*"))
     ]
+
+
+def test_excluded_action_addition():
+    """If we have an inclusion that is a subset of another EffectiveAction's exclusions it must not be eliminated.
+    This is because it represents an additional allow which wasn't subject to the same exclusion in its original
+    statement. If it had been then it would have self-destructed by its own exclusions.
+    """
+    a = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
+    b = EffectiveAction(Action("s3:getObject"))
+
+    assert a.union(b) == [
+        EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")})),
+        EffectiveAction(Action("s3:getObject")),
+    ]
