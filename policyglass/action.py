@@ -57,6 +57,26 @@ class EffectiveAction:
             return [self]
         return [self, other]
 
+    def difference(self, other: object) -> List["EffectiveAction"]:
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
+        if self.inclusion in other.inclusion or self.inclusion == other.inclusion:
+            return []
+        if other.inclusion not in self.inclusion:
+            return [self]
+        if self.in_exclusions(other.inclusion):
+            return [self]
+        if not other.exclusions:
+            # Just add the other's inclusion to self's exclusions
+            return [self.__class__(self.inclusion, frozenset(set(self.exclusions).union(set({other.inclusion}))))]
+        # If the other has its own exclusions we need to represent this as two seperate items
+        # We need to add the inclusion from other to the exclusions of self and create new items for
+        # each exclusion of other.
+        # See docs for more details.
+        new_self = self.__class__(self.inclusion, frozenset(set(self.exclusions).union(set({other.inclusion}))))
+        new_others = [self.__class__(other_exclusion) for other_exclusion in other.exclusions]
+        return [new_self, *new_others]
+
     def in_exclusions(self, other: Action) -> bool:
         """Check if the Action is contained within or equal to any of the exclusions.
 
