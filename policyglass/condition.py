@@ -30,7 +30,7 @@ class ConditionValue(str):
     """Condition values may or may not be case sensitive depending on the operator."""
 
 
-class ConditionShard:
+class Condition:
     """A representation of part of a statement condition in order to faciltate comparison."""
 
     def __init__(self, key: ConditionKey, operator: ConditionOperator, values: List[ConditionValue]) -> None:
@@ -39,14 +39,12 @@ class ConditionShard:
         self.values = values
 
     @classmethod
-    def factory(cls, condition: "Condition") -> List["ConditionShard"]:
+    def factory(cls, condition_collection: "ConditionCollection") -> List["Condition"]:
         result = []
-        for key, operator_values in condition.items():
+        for key, operator_values in condition_collection.items():
             for operator, values in operator_values.items():
                 result.append(
-                    ConditionShard(
-                        ConditionKey(key), ConditionOperator(operator), [ConditionValue(value) for value in values]
-                    )
+                    cls(ConditionKey(key), ConditionOperator(operator), [ConditionValue(value) for value in values])
                 )
         return result
 
@@ -70,13 +68,13 @@ class ConditionShard:
         )
 
 
-class Condition(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
+class ConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
     """A representation of a statement condition."""
 
     @property
-    def condition_shards(self) -> List[ConditionShard]:
+    def condition_shards(self) -> List[Condition]:
         """Return a list of Condition Shards."""
-        return ConditionShard.factory(self)
+        return Condition.factory(self)
 
     def __eq__(self, other: object) -> bool:
         """Determine whether this object and another object are equal.

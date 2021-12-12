@@ -1,6 +1,6 @@
 import pytest
 
-from policyglass import Condition, ConditionShard
+from policyglass import Condition, ConditionCollection
 
 CONDITION_MATCH_SCENARIOS = {
     "exactly_equal": [
@@ -20,7 +20,7 @@ CONDITION_MATCH_SCENARIOS = {
 
 @pytest.mark.parametrize("_, scenario", CONDITION_MATCH_SCENARIOS.items())
 def test_condition_equality(_, scenario):
-    assert Condition(**scenario[0]) == Condition(**scenario[1])
+    assert ConditionCollection(**scenario[0]) == ConditionCollection(**scenario[1])
 
 
 CONDITION_NOT_MATCH_SCENARIOS = {
@@ -33,9 +33,9 @@ CONDITION_NOT_MATCH_SCENARIOS = {
 
 @pytest.mark.parametrize("_, scenario", CONDITION_NOT_MATCH_SCENARIOS.items())
 def test_condition_inequality(_, scenario):
-    assert Condition(**scenario[0]) != Condition(**scenario[1])
+    assert ConditionCollection(**scenario[0]) != ConditionCollection(**scenario[1])
 
 
 @pytest.mark.parametrize("_, scenario", CONDITION_MATCH_SCENARIOS.items())
 def test_condition_shard_equality(_, scenario):
-    assert ConditionShard.factory(scenario[0]) == ConditionShard.factory(scenario[1])
+    assert Condition.factory(scenario[0]) == Condition.factory(scenario[1])

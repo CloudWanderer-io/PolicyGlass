@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, TypeVar, Union
 from pydantic import BaseModel, validator
 
 from .action import Action
-from .condition import Condition, ConditionKey, ConditionOperator, ConditionValue
+from .condition import ConditionCollection, ConditionKey, ConditionOperator, ConditionValue
 from .principal import PrincipalCollection, PrincipalType, PrincipalValue
 from .resource import Resource
 from .utils import to_pascal
@@ -29,7 +29,7 @@ class Statement(BaseModel):
     not_resource: Optional[List[Resource]]
     principal: Optional[PrincipalCollection]
     not_principal: Optional[PrincipalCollection]
-    condition: Optional[Condition]
+    condition: Optional[ConditionCollection]
 
     class Config:
         """Configure the Pydantic BaseModel."""
