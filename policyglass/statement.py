@@ -4,10 +4,11 @@ from typing import Dict, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel, validator
 
-from .action import Action
+from .action import Action, EffectiveAction
 from .condition import ConditionCollection, ConditionKey, ConditionOperator, ConditionValue
-from .principal import PrincipalCollection, PrincipalType, PrincipalValue
-from .resource import Resource
+from .policy_shard import PolicyShard
+from .principal import EffectivePrincipal, Principal, PrincipalCollection, PrincipalType, PrincipalValue
+from .resource import EffectiveResource, Resource
 from .utils import to_pascal
 
 T = TypeVar("T")
@@ -39,6 +40,31 @@ class Statement(BaseModel):
     def policy_json(self) -> str:
         return self.json(by_alias=True, exclude_none=True)
 
+    @property
+    def policy_shards(self) -> List[PolicyShard]:
+        result = []
+        for action in self.action or [Action("*")]:
+            if self.principal:
+                principals = self.principal.principals
+            else:
+                principals = [Principal(PrincipalType("AWS"), PrincipalValue("*"))]
+            for principal in principals:
+                for resource in self.resource or [Resource("*")]:
+                    if self.condition:
+                        conditions = frozenset(self.condition.conditions)
+                    else:
+                        conditions = frozenset({})
+                    print(action)
+                    result.append(
+                        PolicyShard(
+                            effective_action=EffectiveAction(Action(action)),
+                            effective_resource=EffectiveResource(Resource(resource)),
+                            effective_principal=EffectivePrincipal(principal),
+                            conditions=conditions,
+                        )
+                    )
+        return result
+
     @validator("action", "not_action", "resource", "not_resource", pre=True)
     def ensure_list(cls, v: T) -> List[T]:
         if isinstance(v, list):
@@ -62,13 +88,13 @@ class Statement(BaseModel):
     @validator("principal", "not_principal", pre=True)
     def ensure_principal_dict(
         cls, v: Union[PrincipalValue, Dict[PrincipalType, Union[PrincipalValue, List[PrincipalValue]]]]
-    ) -> Dict[PrincipalType, List[PrincipalValue]]:
+    ) -> PrincipalCollection:
         if not isinstance(v, dict):
-            return {PrincipalType("AWS"): [PrincipalValue(v)]}
+            return PrincipalCollection({PrincipalType("AWS"): [PrincipalValue(v)]})
         output = dict()
         for principal_type, principals in v.items():
             if isinstance(principals, list):
                 output[principal_type] = principals
             else:
                 output[principal_type] = [principals]
-        return output
+        return PrincipalCollection(output)

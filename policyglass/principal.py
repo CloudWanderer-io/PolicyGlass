@@ -24,8 +24,16 @@ class PrincipalValue(str):
     """
 
 
-class PrincipalCollection(Dict[PrincipalType, PrincipalValue]):
+class PrincipalCollection(Dict[PrincipalType, List[PrincipalValue]]):
     """A collection of Principals of different types, unique to PolicyGlass."""
+
+    @property
+    def principals(self) -> List["Principal"]:
+        result = []
+        for principal_type, principal_values in self.items():
+            for principal_value in principal_values:
+                result.append(Principal(principal_type, principal_value))
+        return result
 
     def __hash__(self) -> int:  # type: ignore[override]
         """Generate a hash for this principal."""

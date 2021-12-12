@@ -72,7 +72,7 @@ class ConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[Condit
     """A representation of a statement condition."""
 
     @property
-    def condition_shards(self) -> List[Condition]:
+    def conditions(self) -> List[Condition]:
         """Return a list of Condition Shards."""
         return Condition.factory(self)
 
@@ -87,4 +87,4 @@ class ConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[Condit
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
-        return self.condition_shards == other.condition_shards
+        return self.conditions == other.conditions

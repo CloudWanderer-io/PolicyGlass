@@ -55,6 +55,10 @@ class Resource(str):
         """
         raise NotImplementedError()
 
+    def __repr__(self) -> str:
+        """Return an instantiable representation of this object."""
+        return f"{self.__class__.__name__}('{self}')"
+
 
 class EffectiveResource(EffectiveARP[Resource]):
     """EffectiveResources are the representation of the difference between an Resource and its exclusion.
