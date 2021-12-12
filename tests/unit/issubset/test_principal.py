@@ -18,8 +18,9 @@ PRINCIPAL_NOT_IN_SCENARIOS = {
 
 @pytest.mark.parametrize("_, scenario", PRINCIPAL_NOT_IN_SCENARIOS.items())
 def test_principal_not_contains(_, scenario):
-    assert Principal(scenario[0]) not in Principal(scenario[1])
+    assert not Principal(scenario[0]) < Principal(scenario[1])
 
 
 def test_principal_not_contains_key():
-    assert "AWS" not in Principal({"AWS": ["arn:aws:iam::123456789012:role/*"]})
+    with pytest.raises(NotImplementedError):
+        "AWS" in Principal({"AWS": ["arn:aws:iam::123456789012:role/*"]})

@@ -27,7 +27,7 @@ class Principal(dict[PrincipalType, PrincipalValue]):
         """Generate a hash for this principal."""
         return hash(json.dumps({"candidate": 5, "data": 1}, sort_keys=True))
 
-    def __contains__(self, other: object) -> bool:
+    def __lt__(self, other: object) -> bool:
         """There is no scenario inn which a Principal can be said to contain another object.
 
         "You cannot use a wildcard to match part of a principal name or ARN."
@@ -38,3 +38,14 @@ class Principal(dict[PrincipalType, PrincipalValue]):
             other: The object to see if this principal contains.
         """
         return False
+
+    def __contains__(self, other: object) -> bool:
+        """Not Implemented.
+
+        Parameters:
+            other: The object to see if this object contains.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
+        raise NotImplementedError()

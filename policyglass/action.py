@@ -13,8 +13,8 @@ class Action(CaseInsensitiveString):
     <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_action.html`__
     """
 
-    def __contains__(self, other: object) -> bool:
-        """Whether this object contains (but is not equal to) another object.
+    def issubset(self, other: object) -> bool:
+        """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
 
         Parameters:
             other: The object to determine if our object contains.
@@ -24,9 +24,33 @@ class Action(CaseInsensitiveString):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+        return fnmatch(self.lower(), other.lower())
+
+    def __lt__(self, other: object) -> bool:
+        """Whether this object contains but is not equal to (i.e. a proper subset) another object.
+
+        Parameters:
+            other: The object to determine if our object contains (but is not equal to).
+
+        Raises:
+            ValueError: If the other object is not of the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
         if self == other:
             return False
-        return fnmatch(other.lower(), self.lower())
+        return self.issubset(other)
+
+    def __contains__(self, other: object) -> bool:
+        """Not Implemented.
+
+        Parameters:
+            other: The object to see if this object contains.
+
+        Raises:
+            NotImplementedError: This method is not implemented.
+        """
+        raise NotImplementedError()
 
 
 class EffectiveAction:
@@ -51,18 +75,18 @@ class EffectiveAction:
     def union(self, other: object) -> List["EffectiveAction"]:
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
-        if self.inclusion in other.inclusion and not other.in_exclusions(self.inclusion):
+        if self.inclusion.issubset(other.inclusion) and not other.in_exclusions(self.inclusion):
             return [other]
-        if other.inclusion in self.inclusion and not self.in_exclusions(other.inclusion):
+        if other.inclusion.issubset(self.inclusion) and not self.in_exclusions(other.inclusion):
             return [self]
         return [self, other]
 
     def difference(self, other: object) -> List["EffectiveAction"]:
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
-        if self.inclusion in other.inclusion or self.inclusion == other.inclusion:
+        if self.inclusion.issubset(other.inclusion):
             return []
-        if other.inclusion not in self.inclusion:
+        if not other.inclusion.issubset(self.inclusion):
             return [self]
         if self.in_exclusions(other.inclusion):
             return [self]
@@ -83,7 +107,7 @@ class EffectiveAction:
         Parameters:
             other: The object to look for in the exclusions of this object.
         """
-        return any(other in exclusion or other == exclusion for exclusion in self.exclusions)
+        return any(other.issubset(exclusion) for exclusion in self.exclusions)
 
     def __eq__(self, other: object) -> bool:
         """Whether this object contains (but is not equal to) another object.
