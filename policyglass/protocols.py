@@ -1,5 +1,10 @@
 """Protocol types used by PolicyGlass."""
-from typing import Protocol
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
 
 
 class ARPProtocol(Protocol):
