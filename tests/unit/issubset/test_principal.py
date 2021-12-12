@@ -16,8 +16,8 @@ PRINCIPAL_ISSUBSET_SCENARIOS = {
         Principal("AWS", "123456789012"),
     ],
     "exactly_equal": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
+        Principal("AWS", "arn:aws:iam::123456789012:role/RoleName"),
+        Principal("AWS", "arn:aws:iam::123456789012:role/RoleName"),
     ],
 }
 
@@ -29,19 +29,15 @@ def test_principal_lt(_, scenario):
 
 PRINCIPAL_NOT_ISSUBSET_SCENARIOS = {
     "case_unequal": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/Role-Name"),
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
+        Principal("AWS", "arn:aws:iam::123456789012:role/RoleName"),
+        Principal("AWS", "arn:aws:iam::123456789012:role/rolename"),
     ],
     "larger": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/*"),
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
-    ],
-    "smaller": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
-        Principal("AWS", "arn:aws:iam::123456789012:role/*"),
+        Principal("AWS", "arn:aws:iam::123456789012:root"),
+        Principal("AWS", "arn:aws:iam::123456789012:role/RoleName"),
     ],
     "type_incorrect": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
+        Principal("AWS", "arn:aws:iam::123456789012:role/RoleName"),
         Principal("Federated", "*"),
     ],
 }

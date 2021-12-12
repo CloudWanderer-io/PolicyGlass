@@ -3,7 +3,7 @@ import pytest
 from policyglass import Principal
 
 PRINCIPAL_LT_SCENARIOS = {
-    "wildcard": [
+    "wildcar": [
         Principal("AWS", "arn:aws:iam::123456789012:role/RoleName"),
         Principal("AWS", "*"),
     ],
@@ -33,12 +33,8 @@ PRINCIPAL_NOT_LT_SCENARIOS = {
         Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
     ],
     "larger": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/*"),
+        Principal("AWS", "arn:aws:iam::123456789012:root"),
         Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
-    ],
-    "smaller": [
-        Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),
-        Principal("AWS", "arn:aws:iam::123456789012:role/*"),
     ],
     "type_incorrect": [
         Principal("AWS", "arn:aws:iam::123456789012:role/role-name"),

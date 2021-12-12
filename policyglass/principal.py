@@ -32,11 +32,14 @@ class PrincipalCollection(Dict[PrincipalType, PrincipalValue]):
         return hash(json.dumps({"candidate": 5, "data": 1}, sort_keys=True))
 
     def __lt__(self, other: object) -> bool:
-        """There is no scenario in which a Principal can be said to contain another object.
+        """There are few scenarios in which a Principal can be said to contain another object.
 
         "You cannot use a wildcard to match part of a principal name or ARN."
         `AWS JSON policy elements: Principal
         <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html>`__
+
+        You can however use *just* a wildcard to match a whole principal.
+        An ``arn:aws:iam::123456789012:root`` ARN also matches every principal in that account.
 
         Parameters:
             other: The object to see if this principal contains.
@@ -85,7 +88,6 @@ class Principal:
             return False
         if other.value == "*":
             return True
-        print(other.is_account)
         if other.is_account and self.account_id == other.account_id:
             return True
         for self_element, other_element in zip(self.arn_elements, other.arn_elements):
@@ -153,6 +155,10 @@ class Principal:
     def __repr__(self) -> str:
         """Return an insantiable representation of this object."""
         return f"{self.__class__.__name__}(type='{self.type}', value='{self.value}')"
+
+    def __hash__(self) -> int:
+        """Return a hash representation of this object."""
+        return hash(str(self))
 
 
 class EffectivePrincipal(EffectiveARP[Principal]):
