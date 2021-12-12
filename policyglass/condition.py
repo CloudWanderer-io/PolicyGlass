@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import List
+from typing import Dict, List
 
 from .models import CaseInsensitiveString
 
@@ -70,7 +70,7 @@ class ConditionShard:
         )
 
 
-class Condition(dict[ConditionKey, dict[ConditionOperator, List[ConditionValue]]]):
+class Condition(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
     """A representation of a statement condition."""
 
     @property
