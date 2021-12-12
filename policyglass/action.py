@@ -51,13 +51,13 @@ class EffectiveAction:
     def union(self, other: object) -> List["EffectiveAction"]:
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
-        if self.inclusion in other.inclusion and not other.is_in_exclusions(self.inclusion):
+        if self.inclusion in other.inclusion and not other.in_exclusions(self.inclusion):
             return [other]
-        if other.inclusion in self.inclusion and not self.is_in_exclusions(other.inclusion):
+        if other.inclusion in self.inclusion and not self.in_exclusions(other.inclusion):
             return [self]
         return [self, other]
 
-    def is_in_exclusions(self, other: Action) -> bool:
+    def in_exclusions(self, other: Action) -> bool:
         """Check if the Action is contained within or equal to any of the exclusions.
 
         Parameters:
