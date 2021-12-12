@@ -11,7 +11,7 @@ ACTION_IN_SCENARIOS = {
 
 
 @pytest.mark.parametrize("_, scenario", ACTION_IN_SCENARIOS.items())
-def test_action_contains(_, scenario):
+def test_action_issubset(_, scenario):
     assert Action(scenario[0]).issubset(Action(scenario[1]))
 
 
@@ -21,5 +21,5 @@ ACTION_NOT_IN_SCENARIOS = {
 
 
 @pytest.mark.parametrize("_, scenario", ACTION_NOT_IN_SCENARIOS.items())
-def test_action_not_contains(_, scenario):
+def test_action_not_issubset(_, scenario):
     assert not Action(scenario[0]).issubset(Action(scenario[1]))

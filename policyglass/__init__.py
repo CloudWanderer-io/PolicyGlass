@@ -3,7 +3,7 @@ from .action import Action, EffectiveAction
 from .condition import Condition, ConditionKey, ConditionOperator, ConditionShard, ConditionValue
 from .policy import Policy
 from .principal import Principal, PrincipalType, PrincipalValue
-from .resource import Resource
+from .resource import EffectiveResource, Resource
 from .statement import Statement
 
 __all__ = [
@@ -21,4 +21,5 @@ __all__ = [
     "ConditionValue",
     "ConditionShard",
     "EffectiveAction",
+    "EffectiveResource",
 ]

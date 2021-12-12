@@ -11,12 +11,12 @@ def test_bad_difference():
 
 
 DIFFERENCE_SCENARIOS = {
-    "simple": {
+    "proper_subset": {
         "first": EffectiveAction(Action("S3:*")),
         "second": EffectiveAction(Action("S3:get*")),
         "result": [EffectiveAction(Action("S3:*"), frozenset({Action("S3:get*")}))],
     },
-    "complex": {
+    "proper_subset_with_exclusions": {
         "first": EffectiveAction(Action("S3:*")),
         "second": EffectiveAction(Action("S3:get*"), frozenset({Action("S3:GetObject")})),
         "result": [
@@ -24,15 +24,20 @@ DIFFERENCE_SCENARIOS = {
             EffectiveAction(Action("S3:GetObject")),
         ],
     },
-    "second_in_firsts_exclusions": {
+    "excluded_proper_subset": {
         "first": EffectiveAction(Action("S3:*"), frozenset({Action("S3:get*")})),
         "second": EffectiveAction(Action("S3:get*")),
         "result": [EffectiveAction(Action("S3:*"), frozenset({Action("S3:get*")}))],
     },
-    "full_overlap": {
+    "subset": {
         "first": EffectiveAction(Action("S3:*")),
         "second": EffectiveAction(Action("S3:*")),
         "result": [],
+    },
+    "no_intersection": {
+        "first": EffectiveAction(Action("S3:*")),
+        "second": EffectiveAction(Action("EC2:*")),
+        "result": [EffectiveAction(Action("S3:*"))],
     },
 }
 
