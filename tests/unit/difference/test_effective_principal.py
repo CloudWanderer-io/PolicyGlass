@@ -22,11 +22,11 @@ DIFFERENCE_SCENARIOS = {
         "first": EffectivePrincipal(Principal("AWS", "*")),
         "second": EffectivePrincipal(
             Principal("AWS", "arn:aws:iam::123456789012:root"),
-            frozenset({Principal("AWS", "arn:aws:iam::123456789012:root")}),
+            frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/RoleName")}),
         ),
         "result": [
             EffectivePrincipal(Principal("AWS", "*"), frozenset({Principal("AWS", "arn:aws:iam::123456789012:root")})),
-            EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
+            EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:role/RoleName")),
         ],
     },
     "excluded_proper_subset": {

@@ -26,7 +26,7 @@ class EffectiveARP(Generic[T]):
         self.inclusion = inclusion
         self.exclusions = exclusions or frozenset()
         if not all([isinstance(action, self._arp_type) for action in [self.inclusion, *self.exclusions]]):
-            raise ValueError(f"All inclusions and exclusions must be {self.__class__.__name__}")
+            raise ValueError(f"All inclusions and exclusions must be type {self._arp_type.__name__}")
 
     def union(self, other: object) -> List["EffectiveARP"]:
         """Combine this object with another object of the same type.
