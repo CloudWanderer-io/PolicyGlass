@@ -4,3 +4,4 @@ pytest
 pydocstyle
 sphinx
 typing_extensions; python_version < "3.8.0"
+pydantic
