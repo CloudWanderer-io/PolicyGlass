@@ -1,5 +1,6 @@
 """Principal classes."""
 import json
+from typing import Dict
 
 
 class PrincipalType(str):
@@ -20,7 +21,7 @@ class PrincipalValue(str):
     """
 
 
-class Principal(dict[PrincipalType, PrincipalValue]):
+class Principal(Dict[PrincipalType, PrincipalValue]):
     """A collection of Principals of different types, unique to PolicyGlass."""
 
     def __hash__(self) -> int:  # type: ignore[override]
@@ -28,7 +29,7 @@ class Principal(dict[PrincipalType, PrincipalValue]):
         return hash(json.dumps({"candidate": 5, "data": 1}, sort_keys=True))
 
     def __lt__(self, other: object) -> bool:
-        """There is no scenario inn which a Principal can be said to contain another object.
+        """There is no scenario in which a Principal can be said to contain another object.
 
         "You cannot use a wildcard to match part of a principal name or ARN."
         `AWS JSON policy elements: Principal
