@@ -1,4 +1,4 @@
-name: CloudWanderer Linting & Testing
+name: PolicyGlass Linting & Testing
 
 on: [push]
 
