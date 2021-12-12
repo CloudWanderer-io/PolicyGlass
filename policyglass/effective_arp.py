@@ -99,4 +99,4 @@ class EffectiveARP(Generic[T]):
 
     def __repr__(self) -> str:
         """Return an insantiable representation of this object."""
-        return f"{self.__class__.__name__}(inclusion={self.inclusion}, exclusions={self.exclusions})"
+        return f"{self.__class__.__name__}(inclusion={repr(self.inclusion)}, exclusions={self.exclusions})"

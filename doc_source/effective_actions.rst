@@ -22,13 +22,13 @@ Simple
 Let's say we calculate the difference between two effective actions like so.
 
 .. doctest :: 
-
+    
+    >>> from pprint import pprint
+    >>> from policyglass import EffectiveAction, Action
     >>> x = EffectiveAction(inclusion=Action("S3:*"))
     >>> y = EffectiveAction(inclusion=Action("S3:Get*"))
     >>> x.difference(y)
-    ... [
-    ...     EffectiveAction(inclusion=Action("S3:*"), exclusions=frozenset({Action("S3:Get*")}))
-    ... ]
+    [EffectiveAction(inclusion=Action('S3:*'), exclusions=frozenset({Action('S3:Get*')}))]
 
 The result is that the inclusion from *y* is added to the *exclusions* of *x*.
 
@@ -54,14 +54,14 @@ Complex
 Let's say we have two effective actions like so:
 
 .. doctest :: 
-
+    
+    >>> from pprint import pprint
+    >>> from policyglass import EffectiveAction, Action
     >>> x = EffectiveAction(inclusion=Action("S3:*"))
     >>> y = EffectiveAction(inclusion=Action("S3:Get*"), exclusions=frozenset({Action("S3:GetObject")}))
-    >>> x.difference(y)
-    ... [
-    ...     EffectiveAction(inclusion=Action("S3:*"), exclusions=frozenset({Action("S3:Get*")})),
-    ...     EffectiveAction(inclusion=Action("S3:Get*"), exclusions=frozenset({Action("S3:GetObject")})),
-    ... ]
+    >>> pprint(x.difference(y))
+    [EffectiveAction(inclusion=Action('S3:*'), exclusions=frozenset({Action('S3:Get*')})),
+     EffectiveAction(inclusion=Action('S3:GetObject'), exclusions=frozenset())]
 
 Let's unpack what happened here.
 

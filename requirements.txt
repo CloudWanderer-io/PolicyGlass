@@ -1,0 +1,5 @@
+mypy
+flake8
+pytest
+pydocstyle
+sphinx
