@@ -57,10 +57,10 @@ class Resource(str):
 
 
 class EffectiveResource(EffectiveARP[Resource]):
-    """EffectiveActions are the representation of the difference between an Action and its exclusion.
+    """EffectiveResources are the representation of the difference between an Resource and its exclusion.
 
-    The allowed actions is the difference (subtraction) of the excluded Actions
-    from the included action.
+    The allowed Resource is the difference (subtraction) of the excluded Resources
+    from the included Resource.
     """
 
     _arp_type = Resource
