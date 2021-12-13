@@ -31,7 +31,7 @@ class ConditionValue(str):
 
 
 class Condition:
-    """A representation of part of a statement condition in order to faciltate comparison."""
+    """A representation of part of a statement condition in order to facilitate comparison."""
 
     def __init__(self, key: ConditionKey, operator: ConditionOperator, values: List[ConditionValue]) -> None:
         self.key = key
@@ -66,6 +66,10 @@ class Condition:
         return (
             f"{self.__class__.__name__}(" f"key='{self.key}', " f"operator='{self.operator}', " f"values={self.values})"
         )
+
+    def __hash__(self) -> int:
+        """Return a hash reprensetation of this object."""
+        return hash(self.__repr__())
 
 
 class ConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):

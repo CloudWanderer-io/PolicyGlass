@@ -28,7 +28,7 @@ class EffectiveARP(Generic[T]):
         if not all([isinstance(action, self._arp_type) for action in [self.inclusion, *self.exclusions]]):
             raise ValueError(f"All inclusions and exclusions must be type {self._arp_type.__name__}")
 
-    def union(self, other: object) -> List["EffectiveARP"]:
+    def union(self, other: object) -> List["EffectiveARP[T]"]:
         """Combine this object with another object of the same type.
 
         Parameters:
@@ -45,7 +45,7 @@ class EffectiveARP(Generic[T]):
             return [self]
         return [self, other]
 
-    def difference(self, other: object) -> List["EffectiveARP"]:
+    def difference(self, other: object) -> List["EffectiveARP[T]"]:
         """Calculate the difference between this and another object of the same type.
 
         Effectively subtracts the inclusions of ``other`` from ``self``.
