@@ -1,6 +1,7 @@
 Examples
 ============
 
+Below you can find some examples on how PolicyGlass can be used to understand complex policies in a consistent way.
 
 Simple
 -----------
@@ -44,6 +45,12 @@ Simple
       conditions=frozenset(),
       not_conditions=frozenset())]
 
+PolicyShard #1 tells us:
+   #. `s3:*` is allowed for all resources **except** ``arn:aws:s3:::examplebucket/*``
+
+What occurred:
+   #. The ``resource`` from the deny was added to the allow's ``EffectiveResource``'s ``exclusions``
+
 De-duplicate
 -------------
 
@@ -85,6 +92,12 @@ De-duplicate
          exclusions=frozenset()), 
       conditions=frozenset(),
       not_conditions=frozenset())]
+
+PolicyShard 1 tells us:
+   #. ``s3:*`` is allowed on all resources.
+
+What occurred:
+   #. One of the two ``s3:*`` policy shards was removed because it was a duplicate.
 
 Complex Single Policy
 --------------------------
@@ -137,3 +150,20 @@ Complex Single Policy
       conditions=frozenset(),
       not_conditions=frozenset({Condition(key='StringNotEquals', operator='s3:x-amz-server-side-encryption', values=['AES256'])}))]
    
+The output has two policy shards.
+
+PolicyShard #1 tells us:
+   #. Allow ``s3:*`` except for ``s3:PutObject`` 
+   #. On **all** resources.
+   #. No conditions
+
+PolicyShard #2 tells us:
+   #. Allow ``s3:PutObject`` 
+   #. On all resources **except** ``arn:aws:s3:::examplebucket/*``
+   #. *except* If the condition applies.
+
+What occurred:
+   #. ``s3:GetObject`` was removed from the allow because it was totally within ``s3:*``
+   #. ``s3:PutObject`` was added to the ``EffectiveAction``'s ``exclusions`` so it could be split out into a second ``PolicyShard``.
+   #. A new ``PolicyShard`` was created with ``s3:PutObject``
+   #. The deny's ``condition`` became a ``not_condition`` on the new ``PolicyShard``.
