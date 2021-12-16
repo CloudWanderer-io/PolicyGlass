@@ -1,8 +1,5 @@
 PolicyGlass
-------------
-
-
-|version| |checks| |docs|
+===========
 
 .. |version|
    image:: https://img.shields.io/pypi/v/policyglass?style=flat-square
@@ -21,6 +18,8 @@ PolicyGlass
 
 
 .. image:: https://user-images.githubusercontent.com/803607/146429306-b132f7b2-79b9-44a0-a38d-f46127746c46.png
+
+|version| |checks| |docs|
 
 PolicyGlass allows you to combine multiple AWS IAM policies/statements into their 'effective permissions', deduplicating permissions, and eliminating denied permissions along the way.
 
