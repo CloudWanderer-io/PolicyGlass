@@ -2,7 +2,7 @@ PolicyGlass
 ------------
 
 
-|version| |checks|
+|version| |checks| |docs|
 
 .. |version|
    image:: https://img.shields.io/pypi/v/policyglass?style=flat-square
@@ -10,9 +10,15 @@ PolicyGlass
       :target: https://pypi.org/project/policyglass/
 
 .. |checks|
-   image:: https://img.shields.io/github/workflow/status/cloudwanderer-io/policyglass/Python%20package/main?style=flat-square
+   image:: https://img.shields.io/github/workflow/status/CloudWanderer-io/PolicyGlass/PolicyGlass%20Linting%20&%20Testing/main?style=flat-square
       :alt: GitHub Workflow Status (branch)
       :target: https://github.com/CloudWanderer-io/PolicyGlass/actions?query=branch%3Amain
+
+.. |docs|
+   image:: https://readthedocs.org/projects/cloudwanderer/badge/?version=latest&style=flat-square
+      :target: https://www.cloudwanderer.io/en/latest/?badge=latest
+      :alt: Documentation Status
+
 
 .. image:: https://user-images.githubusercontent.com/803607/146429306-b132f7b2-79b9-44a0-a38d-f46127746c46.png
 

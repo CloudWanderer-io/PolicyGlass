@@ -57,7 +57,7 @@ Let's say we have two effective actions like so:
     >>> from policyglass import EffectiveAction, Action
     >>> x = EffectiveAction(inclusion=Action("S3:*"))
     >>> y = EffectiveAction(inclusion=Action("S3:Get*"), exclusions=frozenset({Action("S3:GetObject")}))
-    >>> pprint(x.difference(y))
+    >>> print(x.difference(y))
     [EffectiveAction(inclusion=Action('S3:*'), exclusions=frozenset({Action('S3:Get*')})),
      EffectiveAction(inclusion=Action('S3:GetObject'), exclusions=frozenset())]
 
