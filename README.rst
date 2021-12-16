@@ -23,7 +23,7 @@ PolicyGlass
 
 PolicyGlass allows you to combine multiple AWS IAM policies/statements into their 'effective permissions', deduplicating permissions, and eliminating denied permissions along the way.
 
-PolicyGlass will **always** result in only allow :class:`~policyglass.policy_shard.PolicyShard` objects, no matter how complex the policy. This makes understanding the effect of your policies programtically a breeze.
+PolicyGlass will **always** result in only allow ``PolicyShard`` objects, no matter how complex the policy. This makes understanding the effect of your policies programtically a breeze.
 
 
 Installation 
@@ -78,5 +78,5 @@ Let's take two policies, *a* and *b* and pit them against each other.
          exclusions=frozenset()), 
       conditions=frozenset())]
 
-Two policies, two statements, resulting in a single allow :class:`~policyglass.policy_shard.PolicyShard`.
+Two policies, two statements, resulting in a single allow ``PolicyShard``.
 More complex policies will result in multiple shards, but they will always be **allows**, no matter how complex the policy.
