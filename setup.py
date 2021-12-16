@@ -10,7 +10,7 @@ with open(path.join(this_directory, "README.rst"), encoding="utf-8") as f:
     long_description = re.sub(r"..\s+doctest\s+::", ".. code-block ::", f.read())
 
 setup(
-    version="0.2.0s",
+    version="0.2.0",
     python_requires=">=3.6.0",
     name="policyglass",
     packages=find_packages(include=["policyglass", "policyglass.*"]),
