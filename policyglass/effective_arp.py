@@ -1,5 +1,5 @@
 """Parent class for EffectiveAction, EffectiveResource, EffectivePrincipal."""
-from typing import FrozenSet, Generic, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, FrozenSet, Generic, Iterator, List, Optional, Type, TypeVar
 
 from .protocols import ARPProtocol
 
@@ -129,3 +129,15 @@ class EffectiveARP(Generic[T]):
     def __repr__(self) -> str:
         """Return an insantiable representation of this object."""
         return f"{self.__class__.__name__}(inclusion={repr(self.inclusion)}, exclusions={self.exclusions})"
+
+    def dict(self) -> Dict[str, Any]:
+        """Return a dictionary representation of this object."""
+        return {"inclusion": self.inclusion, "exclusions": self.exclusions}
+
+    @classmethod
+    def __get_validators__(cls) -> Iterator[Callable]:
+        """Return noop validator as we don't particularly need validation.
+
+        We just need Pydantic to accept this as a valid type to populate in PolicyShard.
+        """
+        yield lambda x: x

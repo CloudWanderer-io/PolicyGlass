@@ -1,16 +1,17 @@
 """PolicyShards are a simplified representation of policies."""
 
-from typing import FrozenSet, List, Optional
+from typing import Any, Dict, FrozenSet, List, Optional
 
-from policyglass.effective_arp import EffectiveARP
+from pydantic import BaseModel
 
 from .action import Action
 from .condition import Condition
+from .effective_arp import EffectiveARP
 from .principal import Principal
 from .resource import Resource
 
 
-class PolicyShard:
+class PolicyShard(BaseModel):
     """A PolicyShard is part of a policy broken down in such a way that it can be deduplicated and collapsed."""
 
     effective_action: EffectiveARP[Action]
@@ -27,6 +28,13 @@ class PolicyShard:
         conditions: Optional[FrozenSet[Condition]] = None,
         not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
+        super().__init__(
+            effective_action=effective_action,
+            effective_resource=effective_resource,
+            effective_principal=effective_principal,
+            conditions=conditions or frozenset(),
+            not_conditions=not_conditions or frozenset(),
+        )
         self.effective_action = effective_action
         self.effective_resource = effective_resource
         self.effective_principal = effective_principal
@@ -113,6 +121,25 @@ class PolicyShard:
                     not_conditions=other.conditions,
                 )
             )
+        return result
+
+    def dict(self, *args, **kwargs) -> Dict[str, Any]:
+        """Convert instance to dict representation of it.
+
+        Parameters:
+            *args: Arguments will be ignored.
+            **kwargs: Arguments will be ignored.
+
+        Overridden from BaseModel so that when converting conditions to dict they don't suffer from being unhashable
+        when placed in a set.
+        """
+        result = {}
+        for attribute_name, attribute_value in self:
+            if hasattr(attribute_value, "dict"):
+                result[attribute_name] = attribute_value.dict()
+            elif isinstance(attribute_value, (set, frozenset)):
+                result[attribute_name] = list(attribute_value)
+
         return result
 
     def __repr__(self) -> str:

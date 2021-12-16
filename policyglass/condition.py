@@ -3,6 +3,8 @@
 
 from typing import Dict, List
 
+from pydantic import BaseModel
+
 from .models import CaseInsensitiveString
 
 
@@ -30,13 +32,19 @@ class ConditionValue(str):
     """Condition values may or may not be case sensitive depending on the operator."""
 
 
-class Condition:
+class Condition(BaseModel):
     """A representation of part of a statement condition in order to facilitate comparison."""
 
+    key: ConditionKey
+    operator: ConditionOperator
+    values: List[ConditionValue]
+
     def __init__(self, key: ConditionKey, operator: ConditionOperator, values: List[ConditionValue]) -> None:
-        self.key = key
-        self.operator = operator
-        self.values = values
+        super().__init__(
+            key=key,
+            operator=operator,
+            values=values,
+        )
 
     @classmethod
     def factory(cls, condition_collection: "ConditionCollection") -> List["Condition"]:
