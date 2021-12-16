@@ -58,7 +58,7 @@ class EffectiveARP(Generic[T]):
             ValueError: If ``other`` is not the same type as this object.
         """
         if not isinstance(other, self.__class__):
-            raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
+            raise ValueError(f"Cannot diff {self.__class__.__name__} with {other.__class__.__name__}")
         if self.inclusion.issubset(other.inclusion):
             return []
         if not other.inclusion.issubset(self.inclusion):
@@ -76,7 +76,7 @@ class EffectiveARP(Generic[T]):
         new_others = [self.__class__(other_exclusion) for other_exclusion in other.exclusions]
         return [new_self, *new_others]
 
-    def intersection(self, other: object) -> List["EffectiveARP[T]"]:
+    def intersection(self, other: object) -> Optional["EffectiveARP[T]"]:
         """Calculate the intersection between this object and another object of the same type.
 
         Parameters:
@@ -86,24 +86,24 @@ class EffectiveARP(Generic[T]):
             ValueError: if ``other`` is not hte same type as this object.
         """
         if not isinstance(other, self.__class__):
-            raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
+            raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
 
         if not self.inclusion.issubset(other.inclusion) and not other.inclusion.issubset(self.inclusion):
-            return []
+            return None
         if self.in_exclusions(other.inclusion):
-            return []
+            return None
         if self.inclusion.issubset(other.inclusion):
             if not other.exclusions:
-                return [self]
+                return self
             self_with_others_exclusions_added = self.__class__(
                 self.inclusion, frozenset(set(self.exclusions).union(set(other.exclusions)))
             )
-            return [self_with_others_exclusions_added]
+            return self_with_others_exclusions_added
         other_with_self_exclusions_added = self.__class__(
             other.inclusion, frozenset(set(self.exclusions.union(set(other.exclusions))))
         )
 
-        return [other_with_self_exclusions_added]
+        return other_with_self_exclusions_added
 
     def in_exclusions(self, other: T) -> bool:
         """Check if the ARP is contained within or equal to any of the exclusions.

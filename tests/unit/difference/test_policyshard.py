@@ -1,6 +1,7 @@
 import pytest
 
 from policyglass import Action, EffectiveAction, EffectivePrincipal, EffectiveResource, PolicyShard, Principal, Resource
+from policyglass.condition import Condition
 
 
 def test_bad_difference():
@@ -12,7 +13,7 @@ def test_bad_difference():
             conditions=frozenset(),
         ).difference(Principal("AWS", "*"))
 
-    assert "Cannot union PolicyShard with Principal" in str(ex.value)
+    assert "Cannot diff PolicyShard with Principal" in str(ex.value)
 
 
 DIFFERENCE_SCENARIOS = {
@@ -134,6 +135,37 @@ DIFFERENCE_SCENARIOS = {
                 effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
                 conditions=frozenset(),
             )
+        ],
+    },
+    "proper_subset_with_condition": {
+        "first": PolicyShard(
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+            conditions=frozenset(),
+        ),
+        "second": PolicyShard(
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
+            conditions=frozenset({Condition("Key", "Operator", ["Value"])}),
+        ),
+        "result": [
+            PolicyShard(
+                effective_action=EffectiveAction(inclusion=Action("s3:*")),
+                effective_resource=EffectiveResource(inclusion=Resource("*")),
+                effective_principal=EffectivePrincipal(
+                    Principal("AWS", "*"), frozenset({Principal("AWS", "arn:aws:iam::123456789012:root")})
+                ),
+                conditions=frozenset(),
+            ),
+            PolicyShard(
+                effective_action=EffectiveAction(inclusion=Action("s3:*")),
+                effective_resource=EffectiveResource(inclusion=Resource("*")),
+                effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
+                conditions=frozenset(),
+                not_conditions=frozenset({Condition("Key", "Operator", ["Value"])}),
+            ),
         ],
     },
 }

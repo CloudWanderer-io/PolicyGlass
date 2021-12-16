@@ -1,6 +1,6 @@
 """PolicyShards are a simplified representation of policies."""
 
-from typing import FrozenSet, List
+from typing import FrozenSet, List, Optional
 
 from policyglass.effective_arp import EffectiveARP
 
@@ -17,18 +17,21 @@ class PolicyShard:
     effective_resource: EffectiveARP[Resource]
     effective_principal: EffectiveARP[Principal]
     conditions: FrozenSet[Condition]
+    not_conditions: FrozenSet[Condition]
 
     def __init__(
         self,
         effective_action: EffectiveARP[Action],
         effective_resource: EffectiveARP[Resource],
         effective_principal: EffectiveARP[Principal],
-        conditions: FrozenSet[Condition],
+        conditions: Optional[FrozenSet[Condition]] = None,
+        not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
         self.effective_action = effective_action
         self.effective_resource = effective_resource
         self.effective_principal = effective_principal
-        self.conditions = conditions
+        self.conditions = conditions or frozenset()
+        self.not_conditions = not_conditions or frozenset()
 
     def union(self, other: object) -> List["PolicyShard"]:
         """Combine this object with another object of the same type.
@@ -69,17 +72,25 @@ class PolicyShard:
             ValueError: If ``other`` is not the same type as this object.
         """
         if not isinstance(other, self.__class__):
-            raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
-        if not self.conditions == other.conditions:
-            return [self, other]
+            raise ValueError(f"Cannot diff {self.__class__.__name__} with {other.__class__.__name__}")
 
-        print("\n")
+        intersection_action = self.effective_action.intersection(other.effective_action)
+        intersection_resource = self.effective_resource.intersection(other.effective_resource)
+        intersection_principal = self.effective_principal.intersection(other.effective_principal)
+
+        if not intersection_action or not intersection_resource or not intersection_principal:
+            # Shards do not overlap
+            return [self]
+
         effective_actions = self.effective_action.difference(other.effective_action)
         effective_resources = self.effective_resource.difference(other.effective_resource)
         effective_principals = self.effective_principal.difference(other.effective_principal)
+
         if not effective_actions and not effective_resources and not effective_principals:
+            # Shards overlap wholly
             return []
-        return [
+
+        result = [
             self.__class__(
                 effective_action=effective_action,
                 effective_resource=effective_resource,
@@ -90,6 +101,19 @@ class PolicyShard:
             for effective_resource in effective_resources or [self.effective_resource]
             for effective_principal in effective_principals or [self.effective_principal]
         ]
+
+        if self.conditions != other.conditions:
+            # If the conditions differ return the intersection of the two shards back into the result.
+            # This results in an uncomplicated difference (already in the result) with a conditional intersection.
+            result.append(
+                self.__class__(
+                    effective_action=intersection_action,
+                    effective_resource=intersection_resource,
+                    effective_principal=intersection_principal,
+                    not_conditions=other.conditions,
+                )
+            )
+        return result
 
     def __repr__(self) -> str:
         """Return an instantiable representation of this object."""

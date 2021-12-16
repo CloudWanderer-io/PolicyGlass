@@ -7,7 +7,7 @@ def test_bad_difference():
     with pytest.raises(ValueError) as ex:
         EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*")).difference(Resource("arn:aws:ec2:*:*:volume/*"))
 
-    assert "Cannot union EffectiveResource with Resource" in str(ex.value)
+    assert "Cannot diff EffectiveResource with Resource" in str(ex.value)
 
 
 # ["arn:aws:ec2:*:*:volume/*", "arn:aws:ec2:*:*:volume/vol-12345678"]
@@ -50,7 +50,7 @@ DIFFERENCE_SCENARIOS = {
         "second": EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*")),
         "result": [],
     },
-    "no_intersection": {
+    "disjoint": {
         "first": EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*")),
         "second": EffectiveResource(Resource("EC2:*")),
         "result": [EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*"))],
@@ -62,10 +62,3 @@ DIFFERENCE_SCENARIOS = {
 def test_difference(_, scenario):
     first, second, result = scenario.values()
     assert first.difference(second) == result
-
-
-def test_difference_disjoint():
-
-    assert EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*")).difference(EffectiveResource(Resource("EC2:*"))) == [
-        EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*"))
-    ]

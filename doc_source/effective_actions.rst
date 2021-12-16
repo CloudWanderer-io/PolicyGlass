@@ -34,7 +34,7 @@ The result is that the inclusion from *y* is added to the *exclusions* of *x*.
 
 .. figure:: images/simple_effective_difference.png
 
-    Complex Effective Difference
+    Simple Effective Difference
 
 - *A* is the ``inclusion`` from ``x``
 - *B* is the ``inclusion`` from ``y``

@@ -7,7 +7,7 @@ def test_bad_difference():
     with pytest.raises(ValueError) as ex:
         EffectiveAction(Action("S3:*")).difference(Action("S3:*"))
 
-    assert "Cannot union EffectiveAction with Action" in str(ex.value)
+    assert "Cannot diff EffectiveAction with Action" in str(ex.value)
 
 
 DIFFERENCE_SCENARIOS = {
@@ -34,7 +34,7 @@ DIFFERENCE_SCENARIOS = {
         "second": EffectiveAction(Action("S3:*")),
         "result": [],
     },
-    "no_intersection": {
+    "disjoint": {
         "first": EffectiveAction(Action("S3:*")),
         "second": EffectiveAction(Action("EC2:*")),
         "result": [EffectiveAction(Action("S3:*"))],
@@ -46,10 +46,3 @@ DIFFERENCE_SCENARIOS = {
 def test_difference(_, scenario):
     first, second, result = scenario.values()
     assert first.difference(second) == result
-
-
-def test_difference_disjoint():
-
-    assert EffectiveAction(Action("S3:*")).difference(EffectiveAction(Action("EC2:*"))) == [
-        EffectiveAction(Action("S3:*"))
-    ]
