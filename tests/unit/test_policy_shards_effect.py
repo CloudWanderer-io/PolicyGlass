@@ -2,6 +2,7 @@ import pytest
 
 from policyglass import PolicyShard
 from policyglass.action import Action, EffectiveAction
+from policyglass.condition import Condition
 from policyglass.policy_shard import policy_shards_effect
 from policyglass.principal import EffectivePrincipal, Principal
 from policyglass.resource import EffectiveResource, Resource
@@ -127,7 +128,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
+                conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
             ),
         ],
         "expected": [
@@ -148,6 +149,17 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
                 conditions=frozenset(),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(
+                    inclusion=Action("s3:Get*"), exclusions=frozenset({Action("s3:GetObject")})
+                ),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                not_conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
             ),
         ],
     },

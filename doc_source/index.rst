@@ -11,5 +11,6 @@
    :hidden:
 
    class_reference
+   examples
 
 .. include:: ../README.rst

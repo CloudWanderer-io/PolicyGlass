@@ -143,6 +143,7 @@ class PolicyShard(BaseModel):
                 effective_resource=effective_resource,
                 effective_principal=effective_principal,
                 conditions=self.conditions,
+                not_conditions=self.not_conditions,
             )
             for effective_action in effective_actions or [self.effective_action]
             for effective_resource in effective_resources or [self.effective_resource]
@@ -158,6 +159,7 @@ class PolicyShard(BaseModel):
                     effective_action=intersection_action,
                     effective_resource=intersection_resource,
                     effective_principal=intersection_principal,
+                    conditions=self.conditions,
                     not_conditions=other.conditions,
                 )
             )
@@ -210,7 +212,8 @@ class PolicyShard(BaseModel):
             f"effective_action={self.effective_action}, "
             f"effective_resource={self.effective_resource}, "
             f"effective_principal={self.effective_principal}, "
-            f"conditions={self.conditions})"
+            f"conditions={self.conditions}, "
+            f"not_conditions={self.not_conditions})"
         )
 
     def __str__(self) -> str:
