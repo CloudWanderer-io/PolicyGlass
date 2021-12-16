@@ -11,6 +11,23 @@ from .principal import Principal
 from .resource import Resource
 
 
+def dedupe_policy_shards(shards: List["PolicyShard"]) -> List["PolicyShard"]:
+    """Dedupe policy shards that are subsets of each other.
+
+    Parameters:
+        shards: The shards to deduplicate.
+    """
+    deduped_shards: List[PolicyShard] = []
+    for undeduped_shard in shards:
+        print(undeduped_shard, any(undeduped_shard.issubset(deduped_shard) for deduped_shard in shards))
+        if any(undeduped_shard.issubset(deduped_shard) for deduped_shard in deduped_shards):
+            continue
+
+        deduped_shards.append(undeduped_shard)
+
+    return deduped_shards
+
+
 class PolicyShard(BaseModel):
     """A PolicyShard is part of a policy broken down in such a way that it can be deduplicated and collapsed."""
 
@@ -124,6 +141,27 @@ class PolicyShard(BaseModel):
             )
         return result
 
+    def issubset(self, other: object) -> bool:
+        """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
+
+        Parameters:
+            other: The object to determine if our object contains.
+
+        Raises:
+            ValueError: If the other object is not of the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+
+        return (
+            self.effective_action.issubset(other.effective_action)
+            and self.effective_resource.issubset(other.effective_resource)
+            and self.effective_principal.issubset(other.effective_principal)
+            and self.conditions == other.conditions
+            and self.not_conditions == other.not_conditions
+            and self.effect == other.effect
+        )
+
     def dict(self, *args, **kwargs) -> Dict[str, Any]:
         """Convert instance to dict representation of it.
 
@@ -146,11 +184,16 @@ class PolicyShard(BaseModel):
     def __repr__(self) -> str:
         """Return an instantiable representation of this object."""
         return (
-            f"{self.__class__.__name__}(effective_action={self.effective_action}, "
+            f"{self.__class__.__name__}(effect='{self.effect}', "
+            f"effective_action={self.effective_action}, "
             f"effective_resource={self.effective_resource}, "
             f"effective_principal={self.effective_principal}, "
             f"conditions={self.conditions})"
         )
+
+    def __str__(self) -> str:
+        """Return a stringy representation of this object."""
+        return repr(self)
 
     def __eq__(self, other: object) -> bool:
         """Determine whether this object and another object are equal.

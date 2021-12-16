@@ -30,6 +30,18 @@ def test_union_excluded_action_addition():
     ]
 
 
+def test_union_complex_overlap():
+    """If we have an exclusion that is a subset of another EffectiveAction's exclusions it should be eliminated.
+    This is because it represents a smaller set of exclusions overall.
+    """
+    a = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
+    b = EffectiveAction(Action("s3:*"), frozenset({Action("s3:getobject")}))
+
+    assert a.union(b) == [
+        EffectiveAction(Action("s3:*"), frozenset({Action("s3:getobject")})),
+    ]
+
+
 def test_union_disjoint():
     a = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
     b = EffectiveAction(Action("ec2:get*"))

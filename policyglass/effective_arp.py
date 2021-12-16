@@ -105,6 +105,27 @@ class EffectiveARP(Generic[T]):
 
         return other_with_self_exclusions_added
 
+    def issubset(self, other: object) -> bool:
+        """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
+
+        Parameters:
+            other: The object to determine if our object contains.
+
+        Raises:
+            ValueError: If the other object is not of the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+        if not self.inclusion.issubset(other.inclusion):
+            return False
+        if self.in_exclusions(other.inclusion) or any(
+            self_exclusion.issubset(other_exclusion)
+            for self_exclusion in self.exclusions
+            for other_exclusion in other.exclusions
+        ):
+            return False
+        return True
+
     def in_exclusions(self, other: T) -> bool:
         """Check if the ARP is contained within or equal to any of the exclusions.
 
