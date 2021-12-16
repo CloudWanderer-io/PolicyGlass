@@ -19,13 +19,35 @@ def dedupe_policy_shards(shards: List["PolicyShard"]) -> List["PolicyShard"]:
     """
     deduped_shards: List[PolicyShard] = []
     for undeduped_shard in shards:
-        print(undeduped_shard, any(undeduped_shard.issubset(deduped_shard) for deduped_shard in shards))
         if any(undeduped_shard.issubset(deduped_shard) for deduped_shard in deduped_shards):
             continue
 
         deduped_shards.append(undeduped_shard)
 
     return deduped_shards
+
+
+def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
+    """Calculate the effect of merging allow and deny shards together.
+
+    Parameters:
+        shards: The shards to caclulate the effect of.
+    """
+    allow_shards = [shard for shard in shards if shard.effect == "Allow"]
+    deny_shards = [shard for shard in shards if shard.effect == "Deny"]
+
+    # This code is ugly because DIFFERENCE takes in a single shard and yields a list of them.
+    merged_allow_shards = []
+    for allow_shard in allow_shards:
+        allow_candidates = [allow_shard]
+        for deny_shard in deny_shards:
+            result = []
+            for allow_candidate in allow_candidates:
+                result.extend(allow_candidate.difference(deny_shard))
+            allow_candidates = result
+        if allow_candidates:
+            merged_allow_shards.extend(allow_candidates)
+    return merged_allow_shards
 
 
 class PolicyShard(BaseModel):
