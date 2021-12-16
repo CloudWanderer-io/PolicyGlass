@@ -10,4 +10,6 @@ Welcome to PolicyGlass's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   effective_actions
+   class_reference
+
+.. include:: ../README.rst

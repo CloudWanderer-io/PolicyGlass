@@ -8,9 +8,12 @@ from .models import CaseInsensitiveString
 class Action(CaseInsensitiveString):
     """Actions are case insensitive.
 
-    "The prefix and the action name are case insensitive"
-    `IAM JSON policy elements: Action
-    <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_action.html`__
+    .. epigraph::
+
+        "The prefix and the action name are case insensitive"
+
+        -- `IAM JSON policy elements: Action
+        <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_action.html>`__
     """
 
     def issubset(self, other: object) -> bool:

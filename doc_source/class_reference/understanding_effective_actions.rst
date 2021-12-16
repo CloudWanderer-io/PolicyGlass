@@ -1,7 +1,7 @@
-Effective Actions
-===================
+Understanding Effective Actions
+================================
 
-In PolicyGlass we express ARPs (:class:`~Action` :class:`~Resource` :class:`Principal`) as though they are potentially
+In PolicyGlass we express ARPs (:class:`~policyglass.action.Action` :class:`~policyglass.resource.Resource` :class:`policyglass.principal.Principal`) as though they are potentially
 infinite sets. 
 
 In reality they are finite sets because there are only a finite number of allowed actions, resources, or principals.
@@ -23,7 +23,6 @@ Let's say we calculate the difference between two effective actions like so.
 
 .. doctest :: 
     
-    >>> from pprint import pprint
     >>> from policyglass import EffectiveAction, Action
     >>> x = EffectiveAction(inclusion=Action("S3:*"))
     >>> y = EffectiveAction(inclusion=Action("S3:Get*"))
@@ -32,7 +31,7 @@ Let's say we calculate the difference between two effective actions like so.
 
 The result is that the inclusion from *y* is added to the *exclusions* of *x*.
 
-.. figure:: images/simple_effective_difference.png
+.. figure:: ../images/simple_effective_difference.png
 
     Simple Effective Difference
 
@@ -41,10 +40,10 @@ The result is that the inclusion from *y* is added to the *exclusions* of *x*.
 
 
 The inclusion from *x* is added as an exclusion of *y* is because our Actions are essentially infinite sets. The wildcard at the end of ``S3:*`` 
-could extend to an infinitely long string for all we know, so we can't create an :class:`~Action` that 
-expresses `S3:*` but not `S3:Get*` so we must add it as an exclusion in an :class:`~EffectiveAction`.
+could extend to an infinitely long string for all we know, so we can't create an :class:`~policyglass.action.Action` that 
+expresses `S3:*` but not `S3:Get*` so we must add it as an exclusion in an :class:`~policyglass.action.EffectiveAction`.
 
-This is the reason :class:`~EffectiveAction` s exist, so we can express the 
+This is the reason :class:`~policyglass.action.EffectiveAction` s exist, so we can express the 
 intersection of the complement of ininite set B with inifite set A.
 
 
@@ -55,7 +54,6 @@ Let's say we have two effective actions like so:
 
 .. doctest :: 
     
-    >>> from pprint import pprint
     >>> from policyglass import EffectiveAction, Action
     >>> x = EffectiveAction(inclusion=Action("S3:*"))
     >>> y = EffectiveAction(inclusion=Action("S3:Get*"), exclusions=frozenset({Action("S3:GetObject")}))
@@ -70,7 +68,7 @@ Let's unpack what happened here.
 
 Why? What's happening here?
 
-.. figure:: images/complex_effective_difference.png
+.. figure:: ../images/complex_effective_difference.png
 
     Complex Effective Difference
 
@@ -87,4 +85,4 @@ Remember that the exclusions in an EffectiveAction are negations, they are holes
 As a result, what is in the exclusion of *y* should **not** be removed from *x* because it's explicitly not part of *y*.
 
 Because we can't express the fact that we want to exclude B and C but **include** A in our result, we have to return 
-two separate :class:`~EffectiveAction` s, one which includes A but the entirety of B, and another that just includes D.
+two separate :class:`~policyglass.action.EffectiveAction` s, one which includes A but the entirety of B, and another that just includes D.
