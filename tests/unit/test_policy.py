@@ -26,6 +26,7 @@ POLICIES = {
         },
         "shards": [
             PolicyShard(
+                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("ec2:AttachVolume"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("arn:aws:ec2:*:*:volume/*"), exclusions=frozenset()
@@ -51,6 +52,7 @@ POLICIES = {
         },
         "shards": [
             PolicyShard(
+                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("ec2:AttachVolume"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("arn:aws:ec2:*:*:volume/*"), exclusions=frozenset()
@@ -85,6 +87,7 @@ POLICIES = {
         },
         "shards": [
             PolicyShard(
+                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"), exclusions=frozenset()
@@ -95,6 +98,7 @@ POLICIES = {
                 conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
             ),
             PolicyShard(
+                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"), exclusions=frozenset()
@@ -105,6 +109,7 @@ POLICIES = {
                 conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
             ),
             PolicyShard(
+                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("s3:PutObjectAcl"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"), exclusions=frozenset()
@@ -115,6 +120,7 @@ POLICIES = {
                 conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
             ),
             PolicyShard(
+                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("s3:PutObjectAcl"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"), exclusions=frozenset()

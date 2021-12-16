@@ -7,6 +7,7 @@ from policyglass.resource import EffectiveResource, Resource
 
 def test_elimination():
     shard_a = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
@@ -14,6 +15,7 @@ def test_elimination():
     )
 
     shard_b = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:getobject"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
@@ -25,6 +27,7 @@ def test_elimination():
 
 def test_disjoint():
     shard_a = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
@@ -32,6 +35,7 @@ def test_disjoint():
     )
 
     shard_b = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("ec2:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
@@ -43,6 +47,7 @@ def test_disjoint():
 
 def test_disjoint_condition():
     shard_a = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
@@ -50,6 +55,7 @@ def test_disjoint_condition():
     )
 
     shard_b = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),

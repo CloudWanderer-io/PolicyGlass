@@ -14,6 +14,7 @@ from .resource import Resource
 class PolicyShard(BaseModel):
     """A PolicyShard is part of a policy broken down in such a way that it can be deduplicated and collapsed."""
 
+    effect: str
     effective_action: EffectiveARP[Action]
     effective_resource: EffectiveARP[Resource]
     effective_principal: EffectiveARP[Principal]
@@ -22,6 +23,7 @@ class PolicyShard(BaseModel):
 
     def __init__(
         self,
+        effect: str,
         effective_action: EffectiveARP[Action],
         effective_resource: EffectiveARP[Resource],
         effective_principal: EffectiveARP[Principal],
@@ -29,17 +31,13 @@ class PolicyShard(BaseModel):
         not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
         super().__init__(
+            effect=effect,
             effective_action=effective_action,
             effective_resource=effective_resource,
             effective_principal=effective_principal,
             conditions=conditions or frozenset(),
             not_conditions=not_conditions or frozenset(),
         )
-        self.effective_action = effective_action
-        self.effective_resource = effective_resource
-        self.effective_principal = effective_principal
-        self.conditions = conditions or frozenset()
-        self.not_conditions = not_conditions or frozenset()
 
     def union(self, other: object) -> List["PolicyShard"]:
         """Combine this object with another object of the same type.
@@ -57,6 +55,7 @@ class PolicyShard(BaseModel):
 
         return [
             self.__class__(
+                effect=self.effect,
                 effective_action=effective_action,
                 effective_resource=effective_resource,
                 effective_principal=effective_principal,
@@ -100,6 +99,7 @@ class PolicyShard(BaseModel):
 
         result = [
             self.__class__(
+                effect=self.effect,
                 effective_action=effective_action,
                 effective_resource=effective_resource,
                 effective_principal=effective_principal,
@@ -115,6 +115,7 @@ class PolicyShard(BaseModel):
             # This results in an uncomplicated difference (already in the result) with a conditional intersection.
             result.append(
                 self.__class__(
+                    effect=self.effect,
                     effective_action=intersection_action,
                     effective_resource=intersection_resource,
                     effective_principal=intersection_principal,

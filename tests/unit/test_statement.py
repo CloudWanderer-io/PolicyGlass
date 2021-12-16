@@ -15,6 +15,7 @@ def test_policy_shards():
 
     assert statement.policy_shards == [
         PolicyShard(
+            effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),

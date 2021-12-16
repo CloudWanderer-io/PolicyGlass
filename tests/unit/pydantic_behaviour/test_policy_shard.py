@@ -14,6 +14,7 @@ from policyglass import (
 
 def test_json():
     subject = PolicyShard(
+        effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:*")),
         effective_resource=EffectiveResource(inclusion=Resource("*")),
         effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),

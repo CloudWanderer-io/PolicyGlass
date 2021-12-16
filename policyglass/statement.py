@@ -56,6 +56,7 @@ class Statement(BaseModel):
                         conditions = frozenset({})
                     result.append(
                         PolicyShard(
+                            effect=self.effect,
                             effective_action=EffectiveAction(Action(action)),
                             effective_resource=EffectiveResource(Resource(resource)),
                             effective_principal=EffectivePrincipal(principal),
