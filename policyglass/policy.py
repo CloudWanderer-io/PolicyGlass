@@ -28,11 +28,13 @@ class Policy(BaseModel):
             ...     ]
             ... })
             Policy(version='2012-10-17',
-                statement=[Statement(effect='Allow', action=[Action('s3:*')],
-                not_action=None, resource=[Resource('*')],
-                not_resource=None, principal=None,
-                not_principal=None,
-                condition=None)])
+                statement=[Statement(effect='Allow',
+                    action=[Action('s3:*')],
+                    not_action=None,
+                    resource=[Resource('*')],
+                    not_resource=None, principal=None,
+                    not_principal=None,
+                    condition=None)])
     """
 
     version: str
