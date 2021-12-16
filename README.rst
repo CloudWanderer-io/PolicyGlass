@@ -21,6 +21,9 @@ PolicyGlass
 
 |version| |checks| |docs|
 
+| **Documentation**: `policyglass.cloudwanderer.io <https://policyglass.cloudwanderer.io>`__
+| **GitHub**: `https://github.com/CloudWanderer-io/PolicyGlass <https://github.com/CloudWanderer-io/PolicyGlass>`__
+
 PolicyGlass allows you to combine multiple AWS IAM policies/statements into their 'effective permissions', deduplicating permissions, and eliminating denied permissions along the way.
 
 PolicyGlass will **always** result in only allow ``PolicyShard`` objects, no matter how complex the policy. This makes understanding the effect of your policies programtically a breeze.
@@ -76,7 +79,8 @@ Let's take two policies, *a* and *b* and pit them against each other.
          exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
       effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), 
          exclusions=frozenset()), 
-      conditions=frozenset())]
+      conditions=frozenset(),
+      not_conditions=frozenset())]
 
 Two policies, two statements, resulting in a single allow ``PolicyShard``.
 More complex policies will result in multiple shards, but they will always be **allows**, no matter how complex the policy.
