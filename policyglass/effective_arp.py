@@ -76,6 +76,35 @@ class EffectiveARP(Generic[T]):
         new_others = [self.__class__(other_exclusion) for other_exclusion in other.exclusions]
         return [new_self, *new_others]
 
+    def intersection(self, other: object) -> List["EffectiveARP[T]"]:
+        """Calculate the intersection between this object and another object of the same type.
+
+        Parameters:
+            other: The object to intersect with this one.
+
+        Raises:
+            ValueError: if ``other`` is not hte same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
+
+        if not self.inclusion.issubset(other.inclusion) and not other.inclusion.issubset(self.inclusion):
+            return []
+        if self.in_exclusions(other.inclusion):
+            return []
+        if self.inclusion.issubset(other.inclusion):
+            if not other.exclusions:
+                return [self]
+            self_with_others_exclusions_added = self.__class__(
+                self.inclusion, frozenset(set(self.exclusions).union(set(other.exclusions)))
+            )
+            return [self_with_others_exclusions_added]
+        other_with_self_exclusions_added = self.__class__(
+            other.inclusion, frozenset(set(self.exclusions.union(set(other.exclusions))))
+        )
+
+        return [other_with_self_exclusions_added]
+
     def in_exclusions(self, other: T) -> bool:
         """Check if the ARP is contained within or equal to any of the exclusions.
 
