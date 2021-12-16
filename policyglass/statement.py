@@ -54,7 +54,6 @@ class Statement(BaseModel):
                         conditions = frozenset(self.condition.conditions)
                     else:
                         conditions = frozenset({})
-                    print(action)
                     result.append(
                         PolicyShard(
                             effective_action=EffectiveAction(Action(action)),
@@ -74,16 +73,16 @@ class Statement(BaseModel):
     @validator("condition", pre=True)
     def ensure_condition_value_list(
         cls, v: Dict[ConditionKey, Dict[ConditionOperator, Union[ConditionValue, List[ConditionValue]]]]
-    ) -> Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]:
+    ) -> ConditionCollection:
         output: Dict = {}
         for operator, key_and_values in v.items():
             output[operator] = {}
             for key, values in key_and_values.items():
                 if isinstance(values, list):
-                    output[operator][key] = values
+                    output[ConditionOperator(operator)][ConditionKey(key)] = values
                 else:
-                    output[operator][key] = [values]
-        return output
+                    output[ConditionOperator(operator)][ConditionKey(key)] = [values]
+        return ConditionCollection(output)
 
     @validator("principal", "not_principal", pre=True)
     def ensure_principal_dict(
