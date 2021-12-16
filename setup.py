@@ -9,6 +9,8 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.rst"), encoding="utf-8") as f:
     long_description = re.sub(r"..\s+doctest\s+::", ".. code-block ::", f.read())
 
+long_description = re.sub(r":class:`~[^`]+\.([^`]+)`", "\1", long_description)
+
 setup(
     version="0.2.0",
     python_requires=">=3.6.0",
