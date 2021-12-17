@@ -1,5 +1,6 @@
 """PolicyShards are a simplified representation of policies."""
 
+import json
 from typing import Any, Dict, FrozenSet, List, Optional
 
 from pydantic import BaseModel
@@ -48,6 +49,17 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
         if allow_candidates:
             merged_allow_shards.extend(allow_candidates)
     return merged_allow_shards
+
+
+def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, **kwargs) -> str:
+    """Convert a list of :class:`awspolicy.policy_shard.PolicyShard` objects to JSON.
+
+    Parameters:
+        shards: The list of shards to convert.
+        exclude_defaults: Whether to exclude default values (e.g. empty lists) from the output.
+        **kwargs: keyword arguments passed on to :func:`json.dumps`
+    """
+    return json.dumps([json.loads(shard.json(exclude_defaults=exclude_defaults)) for shard in shards], **kwargs)
 
 
 class PolicyShard(BaseModel):
@@ -190,8 +202,8 @@ class PolicyShard(BaseModel):
         """Convert instance to dict representation of it.
 
         Parameters:
-            *args: Arguments will be ignored.
-            **kwargs: Arguments will be ignored.
+            *args: Arguments to Pydantic dict method.
+            **kwargs: Arguments to Pydantic dict method.
 
         Overridden from BaseModel so that when converting conditions to dict they don't suffer from being unhashable
         when placed in a set.
@@ -199,9 +211,11 @@ class PolicyShard(BaseModel):
         result = {}
         for attribute_name, attribute_value in self:
             if hasattr(attribute_value, "dict"):
-                result[attribute_name] = attribute_value.dict()
+                result[attribute_name] = attribute_value.dict(*args, **kwargs)
             elif isinstance(attribute_value, (set, frozenset)):
-                result[attribute_name] = list(attribute_value)
+                value = list(attribute_value)
+                if not kwargs.get("exclude_defaults") or value != []:
+                    result[attribute_name] = value
 
         return result
 
