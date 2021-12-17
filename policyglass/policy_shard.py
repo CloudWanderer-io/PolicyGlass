@@ -51,14 +51,15 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
     return merged_allow_shards
 
 
-def policy_shards_to_json(shards: List["PolicyShard"], **kwargs) -> str:
+def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, **kwargs) -> str:
     """Convert a list of :class:`awspolicy.policy_shard.PolicyShard` objects to JSON.
 
     Parameters:
         shards: The list of shards to convert.
+        exclude_defaults: Whether to exclude default values (e.g. empty lists) from the output.
         **kwargs: keyword arguments passed on to :func:`json.dumps`
     """
-    return json.dumps([json.loads(shard.json()) for shard in shards], **kwargs)
+    return json.dumps([json.loads(shard.json(exclude_defaults=exclude_defaults)) for shard in shards], **kwargs)
 
 
 class PolicyShard(BaseModel):

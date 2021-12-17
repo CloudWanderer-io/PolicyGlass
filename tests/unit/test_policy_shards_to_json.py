@@ -34,7 +34,7 @@ def test_policy_shards_to_json():
     ]
 
     assert (
-        policy_shards_to_json(shards, indent=2)
+        policy_shards_to_json(shards, exclude_defaults=True, indent=2)
         == """[
   {
     "effective_action": {
@@ -44,37 +44,28 @@ def test_policy_shards_to_json():
       ]
     },
     "effective_resource": {
-      "inclusion": "*",
-      "exclusions": []
+      "inclusion": "*"
     },
     "effective_principal": {
       "inclusion": {
         "type": "AWS",
         "value": "*"
-      },
-      "exclusions": []
-    },
-    "conditions": [],
-    "not_conditions": []
+      }
+    }
   },
   {
     "effective_action": {
-      "inclusion": "s3:GetObject",
-      "exclusions": []
+      "inclusion": "s3:GetObject"
     },
     "effective_resource": {
-      "inclusion": "*",
-      "exclusions": []
+      "inclusion": "*"
     },
     "effective_principal": {
       "inclusion": {
         "type": "AWS",
         "value": "*"
-      },
-      "exclusions": []
-    },
-    "conditions": [],
-    "not_conditions": []
+      }
+    }
   },
   {
     "effective_action": {
@@ -84,17 +75,14 @@ def test_policy_shards_to_json():
       ]
     },
     "effective_resource": {
-      "inclusion": "*",
-      "exclusions": []
+      "inclusion": "*"
     },
     "effective_principal": {
       "inclusion": {
         "type": "AWS",
         "value": "*"
-      },
-      "exclusions": []
+      }
     },
-    "conditions": [],
     "not_conditions": [
       {
         "key": "s3:x-amz-server-side-encryption",

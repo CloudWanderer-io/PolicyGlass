@@ -3,12 +3,20 @@ Examples
 
 Below you can find some examples on how PolicyGlass can be used to understand complex policies in a consistent way.
 
+We're going to use :meth:`~policyglass.policy_shard.policy_shards_to_json` to make the output a bit easier to read.
+
+.. tip::
+
+   Remember :class:`~policyglass.policy_shards.PolicyShard` objects are *not* policies. 
+   They represent policies in an abstracted way that makes them easier to understand programmatically, the JSON output
+   you see in the examples is not a policy you can use directly in AWS.
+
 Simple
 -----------
 
 .. doctest:: 
 
-   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_effect
+   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_effect, policy_shards_to_json
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
@@ -33,19 +41,29 @@ Simple
    ...         }
    ...     ]
    ... })
-   >>> policy_shards = [*policy_a.policy_shards, *policy_b.policy_shards]
-   >>> print(policy_shards_effect(policy_shards))
-   [PolicyShard(effect='Allow', 
-      effective_action=EffectiveAction(inclusion=Action('s3:*'), 
-         exclusions=frozenset()), 
-      effective_resource=EffectiveResource(inclusion=Resource('*'), 
-         exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
-      effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), 
-         exclusions=frozenset()), 
-      conditions=frozenset(),
-      not_conditions=frozenset())]
-
-PolicyShard #1 tells us:
+   >>> policy_shards = policy_shards_effect([*policy_a.policy_shards, *policy_b.policy_shards])
+   >>> print(policy_shards_to_json(policy_shards, exclude_defaults=True, indent=2))
+   [
+      {
+        "effective_action": {
+          "inclusion": "s3:*"
+        },
+        "effective_resource": {
+          "inclusion": "*",
+          "exclusions": [
+            "arn:aws:s3:::examplebucket/*"
+          ]
+        },
+        "effective_principal": {
+          "inclusion": {
+            "type": "AWS",
+            "value": "*"
+          }
+        }
+      }
+    ]
+   
+PolicyShard #1 (first dictonary in list) tells us:
    #. `s3:*` is allowed for all resources **except** ``arn:aws:s3:::examplebucket/*``
 
 What occurred:
@@ -56,7 +74,7 @@ De-duplicate
 
 .. doctest:: 
 
-   >>> from policyglass import Policy, dedupe_policy_shards
+   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_to_json
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
@@ -81,19 +99,26 @@ De-duplicate
    ...         }
    ...     ]
    ... })
-   >>> policy_shards = [*policy_a.policy_shards, *policy_b.policy_shards]
-   >>> print(dedupe_policy_shards(policy_shards))
-   [PolicyShard(effect='Allow', 
-      effective_action=EffectiveAction(inclusion=Action('s3:*'), 
-         exclusions=frozenset()), 
-      effective_resource=EffectiveResource(inclusion=Resource('*'), 
-         exclusions=frozenset()), 
-      effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), 
-         exclusions=frozenset()), 
-      conditions=frozenset(),
-      not_conditions=frozenset())]
+   >>> policy_shards = dedupe_policy_shards([*policy_a.policy_shards, *policy_b.policy_shards])
+   >>> print(policy_shards_to_json(policy_shards, exclude_defaults=True, indent=2))
+   [
+      {
+        "effective_action": {
+          "inclusion": "s3:*"
+        },
+        "effective_resource": {
+          "inclusion": "*"
+        },
+        "effective_principal": {
+          "inclusion": {
+            "type": "AWS",
+            "value": "*"
+          }
+        }
+      }
+    ]
 
-PolicyShard 1 tells us:
+PolicyShard #1 (first dictonary in list) tells us:
    #. ``s3:*`` is allowed on all resources.
 
 What occurred:
@@ -103,7 +128,7 @@ Complex Single Policy
 --------------------------
 .. doctest:: 
 
-   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_effect
+   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_effect, policy_shards_to_json
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
@@ -130,34 +155,62 @@ Complex Single Policy
    ...     ]
    ... })
    >>> deduped_shards = dedupe_policy_shards(policy_a.policy_shards)
-   >>> print(policy_shards_effect(deduped_shards))
-   [PolicyShard(effect='Allow', 
-      effective_action=EffectiveAction(inclusion=Action('s3:*'), 
-         exclusions=frozenset({Action('s3:PutObject')})), 
-      effective_resource=EffectiveResource(inclusion=Resource('*'), 
-         exclusions=frozenset()), 
-      effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), 
-         exclusions=frozenset()), 
-      conditions=frozenset(), 
-      not_conditions=frozenset()), 
-   PolicyShard(effect='Allow', 
-      effective_action=EffectiveAction(inclusion=Action('s3:PutObject'), 
-         exclusions=frozenset()), 
-      effective_resource=EffectiveResource(inclusion=Resource('*'), 
-         exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
-      effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'),
-         exclusions=frozenset()),
-      conditions=frozenset(),
-      not_conditions=frozenset({Condition(key='StringNotEquals', operator='s3:x-amz-server-side-encryption', values=['AES256'])}))]
+   >>> shards_effect = policy_shards_effect(deduped_shards)
+   >>> print(policy_shards_to_json(shards_effect, exclude_defaults=True, indent=2))
+   [
+      {
+        "effective_action": {
+          "inclusion": "s3:*",
+          "exclusions": [
+            "s3:PutObject"
+          ]
+        },
+        "effective_resource": {
+          "inclusion": "*"
+        },
+        "effective_principal": {
+          "inclusion": {
+            "type": "AWS",
+            "value": "*"
+          }
+        }
+      },
+      {
+        "effective_action": {
+          "inclusion": "s3:PutObject"
+        },
+        "effective_resource": {
+          "inclusion": "*",
+          "exclusions": [
+            "arn:aws:s3:::examplebucket/*"
+          ]
+        },
+        "effective_principal": {
+          "inclusion": {
+            "type": "AWS",
+            "value": "*"
+          }
+        },
+        "not_conditions": [
+          {
+            "key": "StringNotEquals",
+            "operator": "s3:x-amz-server-side-encryption",
+            "values": [
+              "AES256"
+            ]
+          }
+        ]
+      }
+    ]
    
 The output has two policy shards.
 
-PolicyShard #1 tells us:
+PolicyShard #1 (first dictionary in list) tells us:
    #. Allow ``s3:*`` except for ``s3:PutObject`` 
    #. On **all** resources.
    #. No conditions
 
-PolicyShard #2 tells us:
+PolicyShard #2 (second dictionary in list) tells us:
    #. Allow ``s3:PutObject`` 
    #. On all resources **except** ``arn:aws:s3:::examplebucket/*``
    #. *except* If the condition applies.
