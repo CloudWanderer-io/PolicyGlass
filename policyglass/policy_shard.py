@@ -50,6 +50,10 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
     return merged_allow_shards
 
 
+# class PolicyShardCollection(BaseModel):
+#     __root__ = List["PolicyShard"]
+
+
 class PolicyShard(BaseModel):
     """A PolicyShard is part of a policy broken down in such a way that it can be deduplicated and collapsed."""
 
@@ -190,8 +194,8 @@ class PolicyShard(BaseModel):
         """Convert instance to dict representation of it.
 
         Parameters:
-            *args: Arguments will be ignored.
-            **kwargs: Arguments will be ignored.
+            *args: Arguments to Pydantic dict method.
+            **kwargs: Arguments to Pydantic dict method.
 
         Overridden from BaseModel so that when converting conditions to dict they don't suffer from being unhashable
         when placed in a set.
@@ -199,9 +203,11 @@ class PolicyShard(BaseModel):
         result = {}
         for attribute_name, attribute_value in self:
             if hasattr(attribute_value, "dict"):
-                result[attribute_name] = attribute_value.dict()
+                result[attribute_name] = attribute_value.dict(*args, **kwargs)
             elif isinstance(attribute_value, (set, frozenset)):
-                result[attribute_name] = list(attribute_value)
+                value = list(attribute_value)
+                if not kwargs.get("exclude_defaults") or value != []:
+                    result[attribute_name] = value
 
         return result
 
