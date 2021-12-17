@@ -13,7 +13,9 @@ import doctest
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import re
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -25,7 +27,9 @@ copyright = "2021, Sam Martin"
 author = "Sam Martin"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.1"
+with open(Path(__file__).parent.parent / Path("setup.py")) as f:
+
+    release = re.search(r"version=\"([^\"]+)\"", f.read()).groups()[0]
 
 
 # -- General configuration ---------------------------------------------------
