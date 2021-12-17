@@ -159,7 +159,7 @@ class EffectiveARP(Generic[T]):
             **kwargs: Arguments to Pydantic dict method.
 
         """
-        result: Dict[str, Union[T, FrozenSet]] = {"inclusion": self.inclusion}
+        result: Dict[str, Union[T, FrozenSet[T]]] = {"inclusion": self.inclusion}
         if not kwargs.get("exclude_defaults") or self.exclusions != frozenset():
             result.update({"exclusions": self.exclusions})
         return result
