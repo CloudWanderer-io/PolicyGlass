@@ -1,5 +1,6 @@
 """PolicyShards are a simplified representation of policies."""
 
+import json
 from typing import Any, Dict, FrozenSet, List, Optional
 
 from pydantic import BaseModel
@@ -50,8 +51,14 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
     return merged_allow_shards
 
 
-# class PolicyShardCollection(BaseModel):
-#     __root__ = List["PolicyShard"]
+def policy_shards_to_json(shards: List["PolicyShard"], **kwargs) -> str:
+    """Convert a list of :class:`awspolicy.policy_shard.PolicyShard` objects to JSON.
+
+    Parameters:
+        shards: The list of shards to convert.
+        **kwargs: keyword arguments passed on to :func:`json.dumps`
+    """
+    return json.dumps([json.loads(shard.json()) for shard in shards], **kwargs)
 
 
 class PolicyShard(BaseModel):
