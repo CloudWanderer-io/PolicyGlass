@@ -219,6 +219,36 @@ class PolicyShard(BaseModel):
 
         return result
 
+    @property
+    def explain(self) -> str:
+        """Return a plain English representation of the policy shard.
+
+        Example:
+            Simple PolicyShard explain.
+
+                >>> from policyglass import Policy
+                >>> policy = Policy(**{"Statement": [{"Effect": "Allow", "Action": "s3:*"}]})
+                >>> print([shard.explain for shard in policy.policy_shards])
+                ['Allow action s3:* on resource * with principal AWS *']
+        """
+        result = f"{self.effect} action {self.effective_action.inclusion} "
+        if self.effective_action.exclusions:
+            result += f"(except for {', '.join(self.effective_action.exclusions)}) "
+        result += f"on resource {self.effective_resource.inclusion} "
+        if self.effective_resource.exclusions:
+            result += f"(except for {', '.join(self.effective_resource.exclusions)}) "
+        result += f"with principal {self.effective_principal.inclusion} "
+        if self.effective_principal.exclusions:
+            principal_exclusions = ", ".join([str(principal) for principal in self.effective_principal.exclusions])
+            result += f"(except principals {principal_exclusions}). "
+        if self.conditions:
+            conditions = " and ".join([str(condition) for condition in self.conditions])
+            result += f"Provided conditions {conditions} are met. "
+        if self.not_conditions:
+            not_conditions = " and ".join([str(condition) for condition in self.not_conditions])
+            result += f"Unless conditions {not_conditions} are met. "
+        return result.strip()
+
     def __repr__(self) -> str:
         """Return an instantiable representation of this object."""
         return (
