@@ -193,8 +193,8 @@ Complex Single Policy
         },
         "not_conditions": [
           {
-            "key": "StringNotEquals",
-            "operator": "s3:x-amz-server-side-encryption",
+            "key": "s3:x-amz-server-side-encryption",
+            "operator": "StringNotEquals",
             "values": [
               "AES256"
             ]

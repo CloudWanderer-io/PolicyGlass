@@ -46,7 +46,7 @@ def test_policy_shards_not_resource_condition():
             ),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
             conditions=frozenset(
-                {Condition(key="StringNotEquals", operator="s3:x-amz-server-side-encryption", values=["AES256"])}
+                {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
             ),
         )
     ]

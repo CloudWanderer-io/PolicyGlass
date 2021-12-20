@@ -1,3 +1,7 @@
+# 0.4.2
+
+- Fixed bug causing Condition Keys and Operators to be swapped.
+
 # 0.4.1
 
 - Improved formatting of `PolicyShard` explain.

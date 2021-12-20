@@ -49,10 +49,14 @@ class Condition(BaseModel):
     @classmethod
     def factory(cls, condition_collection: "ConditionCollection") -> List["Condition"]:
         result = []
-        for key, operator_values in condition_collection.items():
-            for operator, values in operator_values.items():
+        for operator, operator_values in condition_collection.items():
+            for key, values in operator_values.items():
                 result.append(
-                    cls(ConditionKey(key), ConditionOperator(operator), [ConditionValue(value) for value in values])
+                    cls(
+                        key=ConditionKey(key),
+                        operator=ConditionOperator(operator),
+                        values=[ConditionValue(value) for value in values],
+                    )
                 )
         return result
 
