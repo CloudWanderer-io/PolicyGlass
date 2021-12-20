@@ -1,7 +1,7 @@
 """PolicyShards are a simplified representation of policies."""
 
 import json
-from typing import Any, Dict, FrozenSet, List, Optional
+from typing import Any, DefaultDict, Dict, FrozenSet, List, Optional
 
 from pydantic import BaseModel
 
@@ -229,25 +229,29 @@ class PolicyShard(BaseModel):
                 >>> from policyglass import Policy
                 >>> policy = Policy(**{"Statement": [{"Effect": "Allow", "Action": "s3:*"}]})
                 >>> print([shard.explain for shard in policy.policy_shards])
-                ['Allow action s3:* on resource * with principal AWS *']
+                ['Allow action s3:* on resource * with principal AWS *.']
         """
-        result = f"{self.effect} action {self.effective_action.inclusion} "
+        explain_elements: Dict[str, str] = DefaultDict(str)
+
+        explain_elements["arp_explain"] = f"{self.effect} action {self.effective_action.inclusion} "
         if self.effective_action.exclusions:
-            result += f"(except for {', '.join(self.effective_action.exclusions)}) "
-        result += f"on resource {self.effective_resource.inclusion} "
+            explain_elements["arp_explain"] += f"(except for {', '.join(self.effective_action.exclusions)}) "
+        explain_elements["arp_explain"] += f"on resource {self.effective_resource.inclusion} "
         if self.effective_resource.exclusions:
-            result += f"(except for {', '.join(self.effective_resource.exclusions)}) "
-        result += f"with principal {self.effective_principal.inclusion} "
+            explain_elements["arp_explain"] += f"(except for {', '.join(self.effective_resource.exclusions)}) "
+        explain_elements["arp_explain"] += f"with principal {self.effective_principal.inclusion} "
         if self.effective_principal.exclusions:
             principal_exclusions = ", ".join([str(principal) for principal in self.effective_principal.exclusions])
-            result += f"(except principals {principal_exclusions}). "
+            explain_elements["arp_explain"] += f"(except principals {principal_exclusions}) "
+
         if self.conditions:
             conditions = " and ".join([str(condition) for condition in self.conditions])
-            result += f"Provided conditions {conditions} are met. "
+            explain_elements["condition_explain"] = f"Provided conditions {conditions} are met"
         if self.not_conditions:
             not_conditions = " and ".join([str(condition) for condition in self.not_conditions])
-            result += f"Unless conditions {not_conditions} are met. "
-        return result.strip()
+            explain_elements["not_condition_explain"] = f"Unless conditions {not_conditions} are met"
+
+        return ". ".join(element.strip() for element in explain_elements.values() if element) + "."
 
     def __repr__(self) -> str:
         """Return an instantiable representation of this object."""

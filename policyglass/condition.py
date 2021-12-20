@@ -76,7 +76,7 @@ class Condition(BaseModel):
         )
 
     def __hash__(self) -> int:
-        """Return a hash reprensetation of this object."""
+        """Return a hash representation of this object."""
         return hash(self.__repr__())
 
     def __str__(self) -> str:
