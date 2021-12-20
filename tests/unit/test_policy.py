@@ -63,8 +63,8 @@ POLICIES = {
                 conditions=frozenset(
                     {
                         Condition(
-                            key="ArnEquals",
-                            operator="ec2:SourceInstanceARN",
+                            key="ec2:SourceInstanceARN",
+                            operator="ArnEquals",
                             values=["arn:aws:ec2:*:*:instance/instance-id"],
                         )
                     }
@@ -95,7 +95,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::111122223333:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
+                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
             ),
             PolicyShard(
                 effect="Allow",
@@ -106,7 +106,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::444455556666:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
+                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
             ),
             PolicyShard(
                 effect="Allow",
@@ -117,7 +117,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::111122223333:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
+                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
             ),
             PolicyShard(
                 effect="Allow",
@@ -128,7 +128,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::444455556666:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="StringEquals", operator="s3:x-amz-acl", values=["public-read"])}),
+                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
             ),
         ],
     },
