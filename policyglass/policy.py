@@ -1,5 +1,5 @@
 """Core Policy class."""
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -37,7 +37,7 @@ class Policy(BaseModel):
                     condition=None)])
     """
 
-    version: str
+    version: Optional[str]
     statement: List[Statement]
 
     class Config:

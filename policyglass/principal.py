@@ -172,6 +172,10 @@ class Principal(BaseModel):
         """Return a hash representation of this object."""
         return hash(str(self))
 
+    def __str__(self) -> str:
+        """Return a string representation of this object."""
+        return f"{self.type} {self.value}"
+
 
 class EffectivePrincipal(EffectiveARP[Principal]):
     """EffectivePrincipals are the representation of the difference between an Principal and its exclusion.

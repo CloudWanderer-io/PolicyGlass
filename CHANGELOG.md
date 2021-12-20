@@ -1,8 +1,13 @@
+# 0.4.0
+
+ - Added `PolicyShard` explain.
+
 # 0.3.0 
 
 - Updated examples to be easier to read.
 - Added `policy_shards_to_json`.
 - Added `exclude_defults` to `EffectiveARP.dict()`.
+
 # 0.2.1
 
 - Added `not_conditions` into the repr for `PolicyShard`

@@ -79,6 +79,10 @@ class Condition(BaseModel):
         """Return a hash reprensetation of this object."""
         return hash(self.__repr__())
 
+    def __str__(self) -> str:
+        """Return a string representation of this object."""
+        return f"{self.key} {self.operator} {self.values}"
+
 
 class ConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
     """A representation of a statement condition."""
