@@ -2,7 +2,7 @@ from policyglass import Principal
 
 
 def test_short_account_id():
-    assert str(Principal("AWS", "123456789012")) == "type='AWS' value='arn:aws:iam::123456789012:root'"
+    assert str(Principal("AWS", "123456789012")) == "AWS arn:aws:iam::123456789012:root"
 
 
 def test_account_id():
