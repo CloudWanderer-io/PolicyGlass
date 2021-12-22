@@ -50,6 +50,11 @@ DIFFERENCE_SCENARIOS = {
         "second": EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*")),
         "result": [],
     },
+    "subset_with_exclusion": {
+        "first": EffectiveResource(Resource("*")),
+        "second": EffectiveResource(Resource("*"), exclusions=frozenset({Resource("arn:aws:ec2:*:*:volume/*")})),
+        "result": [EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*"))],
+    },
     "disjoint": {
         "first": EffectiveResource(Resource("arn:aws:ec2:*:*:volume/*")),
         "second": EffectiveResource(Resource("EC2:*")),

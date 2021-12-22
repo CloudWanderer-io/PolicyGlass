@@ -1,3 +1,7 @@
+# 0.4.3
+
+- Fixed bug causing `EffectiveARP` exclusions not to be honoured by `difference` methods
+
 # 0.4.2
 
 - Fixed bug causing Condition Keys and Operators to be swapped.

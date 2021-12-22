@@ -188,6 +188,43 @@ DIFFERENCE_SCENARIOS = {
             ),
         ],
     },
+    "exact_match_on_inclusion_with_exclusion": {
+        "first": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+            conditions=frozenset(),
+        ),
+        "second": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*")})
+            ),
+            effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+            conditions=frozenset({Condition("Key", "Operator", ["Value"])}),
+        ),
+        "result": [
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*")),
+                effective_resource=EffectiveResource(inclusion=Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*")),
+                effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+                conditions=frozenset(),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*")),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*")})
+                ),
+                effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+                conditions=frozenset(),
+                not_conditions=frozenset({Condition("Key", "Operator", ["Value"])}),
+            ),
+        ],
+    },
 }
 
 
