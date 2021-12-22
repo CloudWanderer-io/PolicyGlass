@@ -1,4 +1,4 @@
-# 0.5.0 
+# 0.4.4
 
 - Consider a `PolicyShard` that has a condition a subset of a `PolicyShard` that doesn't have a condition if all other signs point to it being a subset.
 
