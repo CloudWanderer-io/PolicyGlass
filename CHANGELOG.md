@@ -1,6 +1,10 @@
+# 0.5.0 
+
+- Consider a `PolicyShard` that has a condition a subset of a `PolicyShard` that doesn't have a condition if all other signs point to it being a subset.
+
 # 0.4.3
 
-- Fixed bug causing `EffectiveARP` exclusions not to be honoured by `difference` methods
+- Fixed bug causing `EffectiveARP` exclusions not to be honoured by `difference` methods.
 
 # 0.4.2
 

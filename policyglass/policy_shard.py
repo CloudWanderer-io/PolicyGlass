@@ -189,12 +189,14 @@ class PolicyShard(BaseModel):
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
 
+        if other.conditions and self.conditions != other.conditions:
+            return False
+        if other.not_conditions and self.not_conditions != other.not_conditions:
+            return False
         return (
             self.effective_action.issubset(other.effective_action)
             and self.effective_resource.issubset(other.effective_resource)
             and self.effective_principal.issubset(other.effective_principal)
-            and self.conditions == other.conditions
-            and self.not_conditions == other.not_conditions
             and self.effect == other.effect
         )
 

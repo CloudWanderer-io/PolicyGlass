@@ -1,6 +1,7 @@
 import pytest
 
 from policyglass import Action, EffectiveAction, EffectivePrincipal, EffectiveResource, PolicyShard, Principal, Resource
+from policyglass.condition import Condition
 
 POLICYS_SHARD_ISSUBSET_SCENARIOS = {
     "smaller": [
@@ -26,6 +27,22 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
             conditions=frozenset(),
+        ),
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+        ),
+    ],
+    "exactly_equal_but_condition": [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])}),
         ),
         PolicyShard(
             effect="Allow",
