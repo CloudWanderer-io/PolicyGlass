@@ -60,6 +60,8 @@ class EffectiveARP(Generic[T]):
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot diff {self.__class__.__name__} with {other.__class__.__name__}")
         if self.inclusion.issubset(other.inclusion):
+            if other.exclusions:
+                return [self.__class__(exclusion) for exclusion in other.exclusions]
             return []
         if not other.inclusion.issubset(self.inclusion):
             return [self]

@@ -166,7 +166,7 @@ Complex Single Policy
           ]
         },
         "effective_resource": {
-          "inclusion": "*"
+          "inclusion": "arn:aws:s3:::examplebucket/*"
         },
         "effective_principal": {
           "inclusion": {
@@ -207,7 +207,7 @@ The output has two policy shards.
 
 PolicyShard #1 (first dictionary in list) tells us:
    #. Allow ``s3:*`` except for ``s3:PutObject`` 
-   #. On **all** resources.
+   #. On ``arn:aws:s3:::examplebucket/*``
    #. No conditions
 
 PolicyShard #2 (second dictionary in list) tells us:

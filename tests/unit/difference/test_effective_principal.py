@@ -43,6 +43,13 @@ DIFFERENCE_SCENARIOS = {
         "second": EffectivePrincipal(Principal("AWS", "*")),
         "result": [],
     },
+    "subset_with_exclusion": {
+        "first": EffectivePrincipal(Principal("AWS", "*")),
+        "second": EffectivePrincipal(
+            Principal("AWS", "*"), exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:root")})
+        ),
+        "result": [EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root"))],
+    },
     "disjoint": {
         "first": EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
         "second": EffectivePrincipal(Principal("AWS", "arn:aws:iam::098765432109:root")),

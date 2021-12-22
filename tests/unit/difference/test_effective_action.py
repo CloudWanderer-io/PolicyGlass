@@ -34,6 +34,11 @@ DIFFERENCE_SCENARIOS = {
         "second": EffectiveAction(Action("S3:*")),
         "result": [],
     },
+    "subset_with_exclusion": {
+        "first": EffectiveAction(Action("S3:*")),
+        "second": EffectiveAction(Action("S3:*"), frozenset({Action("S3:GetObject")})),
+        "result": [EffectiveAction(Action("S3:GetObject"))],
+    },
     "disjoint": {
         "first": EffectiveAction(Action("S3:*")),
         "second": EffectiveAction(Action("EC2:*")),
