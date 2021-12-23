@@ -18,6 +18,12 @@ def test_issubset_simple_true():
     assert EffectiveAction(Action("s3:getObject")).issubset(EffectiveAction(Action("s3:getObject")))
 
 
+def test_issubset_exclusion_true():
+    assert EffectiveAction(Action("s3:*"), frozenset({Action("s3:getObject")})).issubset(
+        EffectiveAction(Action("s3:*"), frozenset({Action("s3:getObject")}))
+    )
+
+
 def test_issubset_excluded_action():
     a = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
     b = EffectiveAction(Action("s3:getObject"))
