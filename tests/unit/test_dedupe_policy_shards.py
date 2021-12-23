@@ -76,7 +76,7 @@ def test_dedupe_policy_shards_complex_overlap():
     assert dedupe_policy_shards(shards) == [shards[1]]
 
 
-def test_bugfix():
+def test_larger_after_smaller():
 
     shards = [
         PolicyShard(

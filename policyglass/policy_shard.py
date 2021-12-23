@@ -1,7 +1,7 @@
 """PolicyShards are a simplified representation of policies."""
 
 import json
-from typing import Any, DefaultDict, Dict, FrozenSet, List, Optional
+from typing import Any, DefaultDict, Dict, FrozenSet, Iterable, List, Optional
 
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ from .principal import Principal
 from .resource import Resource
 
 
-def dedupe_policy_shards(shards: List["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
+def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
     """Dedupe policy shards that are subsets of each other.
 
     Parameters:
@@ -27,7 +27,7 @@ def dedupe_policy_shards(shards: List["PolicyShard"], check_reverse: bool = True
         deduped_shards.append(undeduped_shard)
 
     if check_reverse:
-        deduped_shards = dedupe_policy_shards(list(reversed(deduped_shards)), False)
+        deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
 
     return deduped_shards
 
