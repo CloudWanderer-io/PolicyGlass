@@ -122,12 +122,21 @@ class EffectiveARP(Generic[T]):
             return True
         if not self.inclusion.issubset(other.inclusion):
             return False
+        if other.in_exclusions(self.inclusion):
+            return False
         if self.in_exclusions(other.inclusion) or any(
             self_exclusion.issubset(other_exclusion)
             for self_exclusion in self.exclusions
             for other_exclusion in other.exclusions
         ):
             return False
+
+        for other_exclusion in other.exclusions:
+            # If any of other's exclusions excludes something self DOESN'T then self is not a subset of other.
+            if other_exclusion.issubset(self.inclusion) and not any(
+                other_exclusion.issubset(self_exclusion) for self_exclusion in self.exclusions
+            ):
+                return False
         return True
 
     def in_exclusions(self, other: T) -> bool:

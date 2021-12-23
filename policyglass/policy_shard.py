@@ -154,24 +154,52 @@ class PolicyShard(BaseModel):
             # Shards overlap wholly
             return []
         result = []
-        if difference_actions or difference_resources or difference_principals:
-            # If we have an ARP difference add a new shard to represent that difference
-            effective_actions = difference_actions or [self.effective_action]
-            effective_resources = difference_resources or [self.effective_resource]
-            effective_principals = difference_principals or [self.effective_principal]
-            result = [
-                self.__class__(
-                    effect=self.effect,
-                    effective_action=effective_action,
-                    effective_resource=effective_resource,
-                    effective_principal=effective_principal,
-                    conditions=self.conditions,
-                    not_conditions=self.not_conditions,
-                )
-                for effective_action in effective_actions
-                for effective_resource in effective_resources
-                for effective_principal in effective_principals
-            ]
+        all_possible_combinations = [
+            (action, resource, principal)
+            for action in [self.effective_action, intersection_action]
+            for resource in [self.effective_resource, intersection_resource]
+            for principal in [self.effective_principal, intersection_principal]
+        ]
+        for action, resource, principal in all_possible_combinations:
+            result.extend(
+                [
+                    self.__class__(
+                        effect=self.effect,
+                        effective_action=difference_action,
+                        effective_resource=resource,
+                        effective_principal=principal,
+                        conditions=self.conditions,
+                        not_conditions=self.not_conditions,
+                    )
+                    for difference_action in difference_actions
+                ]
+            )
+            result.extend(
+                [
+                    self.__class__(
+                        effect=self.effect,
+                        effective_action=action,
+                        effective_resource=difference_resource,
+                        effective_principal=principal,
+                        conditions=self.conditions,
+                        not_conditions=self.not_conditions,
+                    )
+                    for difference_resource in difference_resources
+                ]
+            )
+            result.extend(
+                [
+                    self.__class__(
+                        effect=self.effect,
+                        effective_action=action,
+                        effective_resource=resource,
+                        effective_principal=difference_principal,
+                        conditions=self.conditions,
+                        not_conditions=self.not_conditions,
+                    )
+                    for difference_principal in difference_principals
+                ]
+            )
 
         if (other.conditions and self.conditions != other.conditions) or (
             other.not_conditions and self.not_conditions != other.not_conditions
@@ -190,7 +218,7 @@ class PolicyShard(BaseModel):
                 )
             )
 
-        return result
+        return dedupe_policy_shards(result)
 
     def issubset(self, other: object) -> bool:
         """Whether this object contains all the elements of another object (i.e. is a subset of the other object).

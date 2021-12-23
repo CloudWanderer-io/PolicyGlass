@@ -46,3 +46,10 @@ def test_union_complex_overlap():
     b = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
 
     assert a.issubset(b) is False
+
+
+def test_exclusion_not_subset_of_no_exclusion():
+
+    a = EffectiveAction(inclusion=Action("*"), exclusions=frozenset())
+    b = EffectiveAction(inclusion=Action("*"), exclusions=frozenset({Action("s3:getobject")}))
+    assert a.issubset(b) is False
