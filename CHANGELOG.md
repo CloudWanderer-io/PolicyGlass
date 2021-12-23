@@ -1,3 +1,8 @@
+# 0.4.5
+
+- Fixed PolicyShards with _additional_ conditions not being marked as subsets of shards that had a subset of those conditions
+- Ensured that conditions are taken into effect properly for PolicyShard's `issubset`
+
 # 0.4.4
 
 - Fixed equal `EffectiveARPs` not being considerered subsets of each toher.
