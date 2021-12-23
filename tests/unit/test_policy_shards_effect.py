@@ -153,20 +153,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
             PolicyShard(
                 effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
-                effective_resource=EffectiveResource(
-                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
-                ),
-                effective_principal=EffectivePrincipal(
-                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
-                ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
-                ),
-                not_conditions=frozenset(),
-            ),
-            PolicyShard(
-                effect="Allow",
-                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
@@ -177,6 +163,20 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 not_conditions=frozenset(
                     {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
                 ),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
+                ),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                conditions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Allow",

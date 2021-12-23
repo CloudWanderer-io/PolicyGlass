@@ -12,11 +12,12 @@ from .principal import Principal
 from .resource import Resource
 
 
-def dedupe_policy_shards(shards: List["PolicyShard"]) -> List["PolicyShard"]:
+def dedupe_policy_shards(shards: List["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
     """Dedupe policy shards that are subsets of each other.
 
     Parameters:
         shards: The shards to deduplicate.
+        check_reverse: Whether you want to check these shards in reverse as well (only disabled when alling itself).
     """
     deduped_shards: List[PolicyShard] = []
     for undeduped_shard in shards:
@@ -24,6 +25,9 @@ def dedupe_policy_shards(shards: List["PolicyShard"]) -> List["PolicyShard"]:
             continue
 
         deduped_shards.append(undeduped_shard)
+
+    if check_reverse:
+        deduped_shards = dedupe_policy_shards(list(reversed(deduped_shards)), False)
 
     return deduped_shards
 
