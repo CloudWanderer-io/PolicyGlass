@@ -1,3 +1,6 @@
+# 0.4.6
+
+- Reverse order for second pass of dedupe to prevent failing to merge things due to sort order.
 # 0.4.5
 
 - Fixed PolicyShards with _additional_ conditions not being marked as subsets of shards that had a subset of those conditions

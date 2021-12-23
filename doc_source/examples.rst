@@ -163,20 +163,6 @@ Deny Not Resource Policy
           "inclusion": "s3:*"
         },
         "effective_resource": {
-          "inclusion": "arn:aws:s3:::examplebucket/*"
-        },
-        "effective_principal": {
-          "inclusion": {
-            "type": "AWS",
-            "value": "*"
-          }
-        }
-      },
-      {
-        "effective_action": {
-          "inclusion": "s3:*"
-        },
-        "effective_resource": {
           "inclusion": "*"
         },
         "effective_principal": {
@@ -194,20 +180,36 @@ Deny Not Resource Policy
             ]
           }
         ]
+      },
+      {
+        "effective_action": {
+          "inclusion": "s3:*"
+        },
+        "effective_resource": {
+          "inclusion": "arn:aws:s3:::examplebucket/*"
+        },
+        "effective_principal": {
+          "inclusion": {
+            "type": "AWS",
+            "value": "*"
+          }
+        }
       }
     ]
    
 The output has two policy shards.
 
-PolicyShard #1 (first dictionary in list) tells us:
-   #. Allow ``s3:*`
-   #. On ``arn:aws:s3:::examplebucket/*``
-   #. No conditions
 
-PolicyShard #2 (second dictionary in list) tells us:
+PolicyShard #1 (first dictionary in list) tells us:
    #. Allow ``s3:*`` 
    #. On all resources
    #. *except* If the condition applies.
+
+
+PolicyShard #2 (second dictionary in list) tells us:
+   #. Allow ``s3:*``
+   #. On ``arn:aws:s3:::examplebucket/*``
+   #. No conditions
 
 What occurred:
    #. ``s3:GetObject`` was removed from the allow because it was totally within ``s3:*``
