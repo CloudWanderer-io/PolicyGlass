@@ -18,6 +18,12 @@ def test_issubset_simple_true():
     assert EffectiveAction(Action("s3:getObject")).issubset(EffectiveAction(Action("s3:getObject")))
 
 
+def test_issubset_exclusion_true():
+    assert EffectiveAction(Action("s3:*"), frozenset({Action("s3:getObject")})).issubset(
+        EffectiveAction(Action("s3:*"), frozenset({Action("s3:getObject")}))
+    )
+
+
 def test_issubset_excluded_action():
     a = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
     b = EffectiveAction(Action("s3:getObject"))
@@ -39,4 +45,11 @@ def test_union_complex_overlap():
     a = EffectiveAction(Action("s3:*"), frozenset({Action("s3:getobject")}))
     b = EffectiveAction(Action("s3:*"), frozenset({Action("s3:get*")}))
 
+    assert a.issubset(b) is False
+
+
+def test_exclusion_not_subset_of_no_exclusion():
+
+    a = EffectiveAction(inclusion=Action("*"), exclusions=frozenset())
+    b = EffectiveAction(inclusion=Action("*"), exclusions=frozenset({Action("s3:getobject")}))
     assert a.issubset(b) is False

@@ -124,7 +124,7 @@ PolicyShard #1 (first dictonary in list) tells us:
 What occurred:
    #. One of the two ``s3:*`` policy shards was removed because it was a duplicate.
 
-Complex Single Policy
+Deny Not Resource Policy
 --------------------------
 .. doctest:: 
 
@@ -143,7 +143,7 @@ Complex Single Policy
    ...         {
    ...             "Effect": "Deny",
    ...             "Action": [
-   ...                 "s3:PutObject",
+   ...                 "s3:*",
    ...             ],
    ...             "NotResource": "arn:aws:s3:::examplebucket/*",
    ...             "Condition": {
@@ -160,10 +160,7 @@ Complex Single Policy
    [
       {
         "effective_action": {
-          "inclusion": "s3:*",
-          "exclusions": [
-            "s3:PutObject"
-          ]
+          "inclusion": "s3:*"
         },
         "effective_resource": {
           "inclusion": "arn:aws:s3:::examplebucket/*"
@@ -177,13 +174,10 @@ Complex Single Policy
       },
       {
         "effective_action": {
-          "inclusion": "s3:PutObject"
+          "inclusion": "s3:*"
         },
         "effective_resource": {
-          "inclusion": "*",
-          "exclusions": [
-            "arn:aws:s3:::examplebucket/*"
-          ]
+          "inclusion": "*"
         },
         "effective_principal": {
           "inclusion": {
@@ -206,17 +200,16 @@ Complex Single Policy
 The output has two policy shards.
 
 PolicyShard #1 (first dictionary in list) tells us:
-   #. Allow ``s3:*`` except for ``s3:PutObject`` 
+   #. Allow ``s3:*`
    #. On ``arn:aws:s3:::examplebucket/*``
    #. No conditions
 
 PolicyShard #2 (second dictionary in list) tells us:
-   #. Allow ``s3:PutObject`` 
-   #. On all resources **except** ``arn:aws:s3:::examplebucket/*``
+   #. Allow ``s3:*`` 
+   #. On all resources
    #. *except* If the condition applies.
 
 What occurred:
    #. ``s3:GetObject`` was removed from the allow because it was totally within ``s3:*``
-   #. ``s3:PutObject`` was added to the ``EffectiveAction``'s ``exclusions`` so it could be split out into a second ``PolicyShard``.
-   #. A new ``PolicyShard`` was created with ``s3:PutObject``
+   #. A new ``PolicyShard`` was created with ``s3:*``
    #. The deny's ``condition`` became a ``not_condition`` on the new ``PolicyShard``.

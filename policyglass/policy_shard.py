@@ -140,42 +140,85 @@ class PolicyShard(BaseModel):
             # Shards do not overlap
             return [self]
 
-        effective_actions = self.effective_action.difference(other.effective_action)
-        effective_resources = self.effective_resource.difference(other.effective_resource)
-        effective_principals = self.effective_principal.difference(other.effective_principal)
+        difference_actions = self.effective_action.difference(other.effective_action)
+        difference_resources = self.effective_resource.difference(other.effective_resource)
+        difference_principals = self.effective_principal.difference(other.effective_principal)
 
-        if not effective_actions and not effective_resources and not effective_principals:
+        if (
+            not difference_actions
+            and not difference_resources
+            and not difference_principals
+            and self.conditions == other.conditions
+            and self.not_conditions == other.not_conditions
+        ):
             # Shards overlap wholly
             return []
-
-        result = [
-            self.__class__(
-                effect=self.effect,
-                effective_action=effective_action,
-                effective_resource=effective_resource,
-                effective_principal=effective_principal,
-                conditions=self.conditions,
-                not_conditions=self.not_conditions,
-            )
-            for effective_action in effective_actions or [self.effective_action]
-            for effective_resource in effective_resources or [self.effective_resource]
-            for effective_principal in effective_principals or [self.effective_principal]
+        result = []
+        all_possible_combinations = [
+            (action, resource, principal)
+            for action in [self.effective_action, intersection_action]
+            for resource in [self.effective_resource, intersection_resource]
+            for principal in [self.effective_principal, intersection_principal]
         ]
+        for action, resource, principal in all_possible_combinations:
+            result.extend(
+                [
+                    self.__class__(
+                        effect=self.effect,
+                        effective_action=difference_action,
+                        effective_resource=resource,
+                        effective_principal=principal,
+                        conditions=self.conditions,
+                        not_conditions=self.not_conditions,
+                    )
+                    for difference_action in difference_actions
+                ]
+            )
+            result.extend(
+                [
+                    self.__class__(
+                        effect=self.effect,
+                        effective_action=action,
+                        effective_resource=difference_resource,
+                        effective_principal=principal,
+                        conditions=self.conditions,
+                        not_conditions=self.not_conditions,
+                    )
+                    for difference_resource in difference_resources
+                ]
+            )
+            result.extend(
+                [
+                    self.__class__(
+                        effect=self.effect,
+                        effective_action=action,
+                        effective_resource=resource,
+                        effective_principal=difference_principal,
+                        conditions=self.conditions,
+                        not_conditions=self.not_conditions,
+                    )
+                    for difference_principal in difference_principals
+                ]
+            )
 
-        if self.conditions != other.conditions:
-            # If the conditions differ return the intersection of the two shards back into the result.
-            # This results in an uncomplicated difference (already in the result) with a conditional intersection.
+        if (other.conditions and self.conditions != other.conditions) or (
+            other.not_conditions and self.not_conditions != other.not_conditions
+        ):
+            # If the other has a condition and it's not identical to self's, then this means that self's effective ARPs
+            # are not negated by other's ARPs if other's condition does not apply.
+            # i.e. we need to add a duplicate self with the other's condition in our not condition.
             result.append(
                 self.__class__(
                     effect=self.effect,
-                    effective_action=intersection_action,
-                    effective_resource=intersection_resource,
-                    effective_principal=intersection_principal,
+                    effective_action=self.effective_action,
+                    effective_resource=self.effective_resource,
+                    effective_principal=self.effective_principal,
                     conditions=self.conditions,
-                    not_conditions=other.conditions,
+                    not_conditions=frozenset(set(self.not_conditions).union(set(other.conditions))),
                 )
             )
-        return result
+
+        return dedupe_policy_shards(result)
 
     def issubset(self, other: object) -> bool:
         """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
@@ -188,13 +231,15 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+        if other.conditions and self.conditions != other.conditions:
+            return False
+        if other.not_conditions and self.not_conditions != other.not_conditions:
+            return False
 
         return (
             self.effective_action.issubset(other.effective_action)
             and self.effective_resource.issubset(other.effective_resource)
             and self.effective_principal.issubset(other.effective_principal)
-            and self.conditions == other.conditions
-            and self.not_conditions == other.not_conditions
             and self.effect == other.effect
         )
 
@@ -279,9 +324,11 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+
         return (
             self.effective_action == other.effective_action
             and self.effective_resource == other.effective_resource
             and self.effective_principal == other.effective_principal
             and self.conditions == other.conditions
+            and self.not_conditions == other.not_conditions
         )

@@ -1,6 +1,7 @@
 import pytest
 
 from policyglass import Action, EffectiveAction, EffectivePrincipal, EffectiveResource, PolicyShard, Principal, Resource
+from policyglass.condition import Condition
 
 POLICYS_SHARD_ISSUBSET_SCENARIOS = {
     "smaller": [
@@ -22,10 +23,48 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
     "exactly_equal": [
         PolicyShard(
             effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
+            ),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+            not_conditions=frozenset(),
+        ),
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
+            ),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+            not_conditions=frozenset(),
+        ),
+    ],
+    "exactly_equal_but_condition": [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])}),
+        ),
+        PolicyShard(
+            effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
             conditions=frozenset(),
+        ),
+    ],
+    "exactly_equal_but_not_condition": [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            not_conditions=frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])}),
         ),
         PolicyShard(
             effect="Allow",
@@ -73,6 +112,44 @@ POLICY_SHARD_NOT_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+        ),
+    ],
+    "action_not_subset_resource_is": [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
+            ),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+            not_conditions=frozenset(),
+        ),
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset({Action("s3:PutObject")})),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+            not_conditions=frozenset(),
+        ),
+    ],
+    "equal_except_for_exclusion": [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:role/RoleName")),
+            conditions=frozenset(),
+        ),
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(
+                Principal("AWS", "*"), frozenset({Principal("AWS", "arn:aws:iam::123456789012:root")})
+            ),
             conditions=frozenset(),
         ),
     ],

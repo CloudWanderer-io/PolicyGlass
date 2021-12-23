@@ -117,49 +117,122 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
+                conditions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                not_conditions=frozenset(),
             ),
             PolicyShard(
-                effect="Deny",
-                effective_action=EffectiveAction(
-                    inclusion=Action("s3:Get*"), exclusions=frozenset({Action("s3:GetObject")})
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:GetObject"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
                 ),
-                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+                conditions=frozenset(),
+                not_conditions=frozenset(),
+            ),
+            PolicyShard(
+                effect="Deny",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
+                ),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                conditions=frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                ),
+                not_conditions=frozenset(),
             ),
         ],
         "expected": [
             PolicyShard(
                 effect="Allow",
-                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:Get*")})),
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
+                ),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                conditions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                not_conditions=frozenset(),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
+                conditions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                not_conditions=frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                ),
             ),
             PolicyShard(
                 effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("s3:GetObject"), exclusions=frozenset()),
-                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
+                ),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
                 conditions=frozenset(),
+                not_conditions=frozenset(),
             ),
+        ],
+    },
+    "identical_except_different_conditions": {
+        "input": [
             PolicyShard(
                 effect="Allow",
-                effective_action=EffectiveAction(
-                    inclusion=Action("s3:Get*"), exclusions=frozenset({Action("s3:GetObject")})
-                ),
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                not_conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+                conditions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                not_conditions=frozenset(),
+            ),
+            PolicyShard(
+                effect="Deny",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(inclusion=Resource("*")),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                conditions=frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                ),
+                not_conditions=frozenset(),
+            ),
+        ],
+        "expected": [
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                conditions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                not_conditions=frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                ),
             ),
         ],
     },
@@ -170,5 +243,5 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
     "_, input, expected",
     [(name, value["input"], value["expected"]) for name, value in POLICY_SHARDS_EFFECT_SCENARIOS.items()],
 )
-def test_policy_shards_effect_simple(_, input, expected):
+def test_policy_shards_effect(_, input, expected):
     assert policy_shards_effect(input) == expected
