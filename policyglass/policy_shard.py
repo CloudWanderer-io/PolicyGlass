@@ -101,11 +101,13 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
-        if not other.issubset(self):
+        if not other.issubset(self) and not self.issubset(other):
             return [self, other]
         if self.conditions != other.conditions:
             if other.issubset(self):
                 return [self]
+            if self.issubset(other):
+                return [other]
             return [self, other]
 
         return [
