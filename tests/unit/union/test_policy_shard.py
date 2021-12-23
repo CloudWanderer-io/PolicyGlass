@@ -45,7 +45,7 @@ def test_disjoint():
     assert shard_a.union(shard_b) == [shard_a, shard_b]
 
 
-def test_disjoint_condition():
+def test_condition():
     shard_a = PolicyShard(
         effect="Allow",
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
@@ -62,4 +62,4 @@ def test_disjoint_condition():
         conditions=frozenset({Condition("aws:username", "StringEquals", ["johndoe"])}),
     )
 
-    assert shard_a.union(shard_b) == [shard_a, shard_b]
+    assert shard_a.union(shard_b) == [shard_a]

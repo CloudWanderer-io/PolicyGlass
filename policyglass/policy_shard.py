@@ -101,7 +101,11 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
-        if not self.conditions == other.conditions:
+        if not other.issubset(self):
+            return [self, other]
+        if self.conditions != other.conditions:
+            if other.issubset(self):
+                return [self]
             return [self, other]
 
         return [
@@ -223,6 +227,11 @@ class PolicyShard(BaseModel):
     def issubset(self, other: object) -> bool:
         """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
 
+        Conditions:
+            If both PolicyShards have conditions but are otherwise identical, self will be a subset of other if the
+            other's conditions are are a subset of self's as this means that self is more restrictive and therefore
+            carves out a subset of possiblilites in comparison with other.
+
         Parameters:
             other: The object to determine if our object contains.
 
@@ -231,9 +240,13 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
-        if other.conditions and self.conditions != other.conditions:
+        if other.conditions and self.conditions != other.conditions and not other.conditions.issubset(self.conditions):
             return False
-        if other.not_conditions and self.not_conditions != other.not_conditions:
+        if (
+            other.not_conditions
+            and self.not_conditions != other.not_conditions
+            and not other.not_conditions.issubset(self.not_conditions)
+        ):
             return False
 
         return (
