@@ -1,4 +1,4 @@
-# 0.4.5
+# 0.4.4
 
 - Fixed equal `EffectiveARPs` not being considerered subsets of each toher.
 - Fixed PolicyShard's `difference` to consider `conditions` and `not_conditions` in whether the shards overlap wholly.
@@ -8,9 +8,6 @@
 - Fixed PolicyShard equality not considering not_conditions
 - EffectiveARP - If any of other's exclusions excludes something self DOESN'T then self is not a subset of other.
 - EffectiveARP - Fixed `issubset` bug when self was excluded by other.
-
-# 0.4.4
-
 - Consider a `PolicyShard` that has a condition a subset of a `PolicyShard` that doesn't have a condition if all other signs point to it being a subset.
 
 # 0.4.3
