@@ -14,7 +14,7 @@ def test_resource_contains(_, scenario):
 
 RESOURCE_NOT_LT_SCENARIOS = {
     "exactly_equal": ["arn:aws:ec2:*:*:volume/*", "arn:aws:ec2:*:*:volume/*"],
-    "case_unequal": ["arn:aws:ec2:*:*Volume/*", "arn:aws:ec2:*:*:volume/*"],
+    "case_unequal": ["arn:aws:ec2:*:*:Volume/*", "arn:aws:ec2:*:*:volume/*"],
     "larger": ["arn:aws:ec2:*:*:volume/*", "arn:aws:ec2:*:*:volume/vol-12345678"],
 }
 
