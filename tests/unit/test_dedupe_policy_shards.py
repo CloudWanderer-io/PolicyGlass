@@ -1,5 +1,6 @@
 from policyglass import PolicyShard
 from policyglass.action import Action, EffectiveAction
+from policyglass.condition import Condition
 from policyglass.policy_shard import dedupe_policy_shards
 from policyglass.principal import EffectivePrincipal, Principal
 from policyglass.resource import EffectiveResource, Resource
@@ -94,6 +95,35 @@ def test_larger_after_smaller():
                 inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
             ),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+        ),
+    ]
+
+    assert dedupe_policy_shards(shards) == [shards[1]]
+
+
+def test_identical():
+    shards = [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
+            ),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(
+                {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+            ),
+            not_conditions=frozenset(),
+        ),
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
+            ),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+            not_conditions=frozenset(),
         ),
     ]
 

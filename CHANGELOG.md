@@ -1,3 +1,12 @@
+# 0.4.7
+
+- Fixed case insensitive `fnmatch` for resources
+- Made it impossible to instantiate EffectiveARPs that have exclusions that are not proper subsets of their inclusions
+- Ensured EffectiveARP's `intersection` filters out conditions from `other` that don't overlap `self` and vice versa when assembling new ARPs
+- Added `Factory` method on EffectiveARP to faciltate creation of objects whose inclusions may overlap their inclusions (i.e. by returning `None`)
+- Added `__lt__` and `__gt__` to EffectiveARP to represent proper subsets
+- 
+
 # 0.4.6
 
 - Reverse order for second pass of dedupe to prevent failing to merge things due to sort order.

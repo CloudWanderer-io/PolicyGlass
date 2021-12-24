@@ -1,5 +1,5 @@
 """Resource class."""
-from fnmatch import fnmatch
+from fnmatch import fnmatchcase
 from typing import List
 
 from .effective_arp import EffectiveARP
@@ -21,7 +21,7 @@ class Resource(str):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
         if self == other:
             return False
-        return fnmatch(self, other)
+        return fnmatchcase(self, other)
 
     def issubset(self, other: object) -> bool:
         """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
@@ -35,7 +35,7 @@ class Resource(str):
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
         for self_element, other_element in zip(self.arn_elements, other.arn_elements):
-            if not fnmatch(self_element, other_element):
+            if not fnmatchcase(self_element, other_element):
                 return False
         return True
 

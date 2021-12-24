@@ -21,3 +21,14 @@ def test_in_exclusions_true(_, scenario):
 
 def test_in_exclusions_false():
     assert not EffectiveAction(Action("S3:*"), frozenset({Action("s3:get*")})).in_exclusions(Action("s3:putobject"))
+
+
+def test_raise_if_nonsense_arp():
+    with pytest.raises(ValueError) as ex:
+        EffectiveAction(Action("S3:*"), frozenset({Action("*")}))
+    assert "Exclusions ([Action('*')]) are not within the inclusion (Action('S3:*'))" in str(ex.value)
+
+
+def test_nothing_if_nonsense_arp_factory():
+
+    assert EffectiveAction.factory(Action("S3:*"), frozenset({Action("*")})) is None

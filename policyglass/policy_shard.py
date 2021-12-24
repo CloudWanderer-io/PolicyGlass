@@ -20,15 +20,18 @@ def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = 
         check_reverse: Whether you want to check these shards in reverse as well (only disabled when alling itself).
     """
     deduped_shards: List[PolicyShard] = []
+    removed_shards: List[PolicyShard] = []
     for undeduped_shard in shards:
         if any(undeduped_shard.issubset(deduped_shard) for deduped_shard in deduped_shards):
+            removed_shards.append(undeduped_shard)
             continue
 
         deduped_shards.append(undeduped_shard)
 
     if check_reverse:
         deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
-
+    if removed_shards:
+        deduped_shards = dedupe_policy_shards(deduped_shards)
     return deduped_shards
 
 
@@ -163,6 +166,7 @@ class PolicyShard(BaseModel):
         ):
             # Shards overlap wholly
             return []
+
         result = []
         all_possible_combinations = [
             (action, resource, principal)
