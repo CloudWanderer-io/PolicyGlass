@@ -12,7 +12,7 @@ with open(path.join(this_directory, "README.rst"), encoding="utf-8") as f:
 long_description = re.sub(r":class:`~[^`]+\.([^`]+)`", "\1", long_description)
 
 setup(
-    version="0.4.6",
+    version="0.4.7",
     python_requires=">=3.6.0",
     name="policyglass",
     packages=find_packages(include=["policyglass", "policyglass.*"]),
