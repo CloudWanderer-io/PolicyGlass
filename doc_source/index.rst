@@ -10,7 +10,8 @@
    :caption: index
    :hidden:
 
-   class_reference
+   what_is_policyglass
    examples
+   class_reference
 
 .. include:: ../README.rst
