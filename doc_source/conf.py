@@ -87,3 +87,6 @@ nitpick_ignore = [
     ("py:class", "policyglass.effective_arp.T"),
     ("py:class", "policyglass.effective_arp.EffectiveARP"),
 ]
+
+# -- Intersphinx
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}

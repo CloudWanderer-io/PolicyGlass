@@ -7,7 +7,7 @@ We're going to use :meth:`~policyglass.policy_shard.policy_shards_to_json` to ma
 
 .. tip::
 
-   Remember :class:`~policyglass.policy_shards.PolicyShard` objects are *not* policies. 
+   Remember :class:`~policyglass.policy_shard.PolicyShard` objects are *not* policies. 
    They represent policies in an abstracted way that makes them easier to understand programmatically, the JSON output
    you see in the examples is not a policy you can use directly in AWS.
 
@@ -200,7 +200,7 @@ Deny Not Resource Policy
 The output has two policy shards.
 
 PolicyShard #1 (first dictionary in list) tells us:
-   #. Allow ``s3:*`
+   #. Allow ``s3:*``
    #. On ``arn:aws:s3:::examplebucket/*``
    #. No conditions
 

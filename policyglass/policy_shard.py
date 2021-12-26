@@ -59,7 +59,7 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
 
 
 def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, **kwargs) -> str:
-    """Convert a list of :class:`awspolicy.policy_shard.PolicyShard` objects to JSON.
+    """Convert a list of :class:`policyglass.policy_shard.PolicyShard` objects to JSON.
 
     Parameters:
         shards: The list of shards to convert.
