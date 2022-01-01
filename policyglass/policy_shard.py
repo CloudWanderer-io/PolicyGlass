@@ -12,7 +12,7 @@ from .principal import Principal
 from .resource import Resource
 
 
-def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
+def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
     """Dedupe policy shards that are subsets of each other.
 
     Parameters:
@@ -29,8 +29,57 @@ def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = 
         deduped_shards.append(undeduped_shard)
 
     if check_reverse:
-        deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
+        deduped_shards = dedupe_policy_shard_subsets(reversed(deduped_shards), False)
     if removed_shards:
+        deduped_shards = dedupe_policy_shard_subsets(deduped_shards)
+    return deduped_shards
+
+
+def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
+    """Dedupe policy shards that are subsets of each other and remove intersections.
+
+    Parameters:
+        shards: The shards to deduplicate.
+        check_reverse: Whether you want to check these shards in reverse as well (only disabled when calling itself).
+    """
+    deduped_shards: List[PolicyShard] = []
+    difference_shards: List[PolicyShard] = []
+    removed_shards: List[PolicyShard] = []
+    for undeduped_shard in shards:
+        difference_buffer = []
+        removed_buffer = []
+
+        for deduped_shard in deduped_shards:
+            if undeduped_shard.issubset(deduped_shard):
+                removed_buffer.append(undeduped_shard)
+                break
+            if deduped_shard.issubset(undeduped_shard):
+                break
+
+            # The difference of Shard A (undeduped_shard) and Shard B (deduped_shard) will not be identical to
+            # shard A if shard B's ARPs are a superset of Shard A's except for a condition.
+            # If this difference is smaller than Shard A and not also a subset of shard B (by virtue of having
+            # differing conditions) then this difference should be added to the dedupe list *instead* of
+            # shard A because shard B covers the intersection with fewer conditions.
+
+            differences = undeduped_shard.difference(deduped_shard)
+            if differences and differences != [undeduped_shard]:
+                for difference in differences:
+                    if difference < undeduped_shard and not difference.issubset(deduped_shard):
+                        difference_buffer.append(difference)
+
+        if removed_buffer:
+            removed_shards.extend(removed_buffer)
+            continue
+        if difference_buffer:
+            difference_shards.extend(difference_buffer)
+            continue
+        deduped_shards.append(undeduped_shard)
+
+    deduped_shards = deduped_shards + difference_shards
+    if check_reverse:
+        deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
+    if removed_shards or difference_shards:
         deduped_shards = dedupe_policy_shards(deduped_shards)
     return deduped_shards
 
@@ -221,6 +270,9 @@ class PolicyShard(BaseModel):
             # If the other has a condition and it's not identical to self's, then this means that self's effective ARPs
             # are not negated by other's ARPs if other's condition does not apply.
             # i.e. we need to add a duplicate self with the other's condition in our not condition.
+            not_conditions = self.not_conditions
+            if other.effect == "Deny" and self.effect == "Allow":
+                not_conditions = frozenset(set(self.not_conditions).union(set(other.conditions)))
             result.append(
                 self.__class__(
                     effect=self.effect,
@@ -228,11 +280,11 @@ class PolicyShard(BaseModel):
                     effective_resource=self.effective_resource,
                     effective_principal=self.effective_principal,
                     conditions=self.conditions,
-                    not_conditions=frozenset(set(self.not_conditions).union(set(other.conditions))),
+                    not_conditions=not_conditions,
                 )
             )
 
-        return dedupe_policy_shards(result)
+        return dedupe_policy_shard_subsets(result)
 
     def issubset(self, other: object) -> bool:
         """Whether this object contains all the elements of another object (i.e. is a subset of the other object).
@@ -250,15 +302,14 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
-        if other.conditions and self.conditions != other.conditions and not other.conditions.issubset(self.conditions):
+        if self.conditions and other.conditions and not other.conditions.issubset(self.conditions):
             return False
-        if (
-            other.not_conditions
-            and self.not_conditions != other.not_conditions
-            and not other.not_conditions.issubset(self.not_conditions)
-        ):
+        if self.not_conditions and other.not_conditions and not other.not_conditions.issubset(self.not_conditions):
             return False
-
+        if not self.conditions and other.conditions:
+            return False
+        if not self.not_conditions and other.not_conditions:
+            return False
         return (
             self.effective_action.issubset(other.effective_action)
             and self.effective_resource.issubset(other.effective_resource)
@@ -355,3 +406,29 @@ class PolicyShard(BaseModel):
             and self.conditions == other.conditions
             and self.not_conditions == other.not_conditions
         )
+
+    def __lt__(self, other: object) -> bool:
+        """Whether this object is a proper subset of another object.
+
+        Parameters:
+            other: The object to determine if our object is a proper subset of.
+
+        Raises:
+            ValueError: If the other object is not of the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+        return self.issubset(other) and self != other
+
+    def __gt__(self, other: object) -> bool:
+        """Whether another object is a proper subset of this object.
+
+        Parameters:
+            other: The object to determine to check if it is a subset of our object.
+
+        Raises:
+            ValueError: If the other object is not of the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
+        return other.issubset(self) and self != other

@@ -209,7 +209,6 @@ class EffectiveARP(Generic[T]):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
-        print(self.issubset(other))
         return self.issubset(other) and self != other
 
     def __gt__(self, other: object) -> bool:

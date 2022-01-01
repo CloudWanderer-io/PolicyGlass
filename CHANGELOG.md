@@ -1,3 +1,12 @@
+# 0.5.0
+
+- Updated `dedupe_policy_shards` to reduce the size of `PolicyShard`s which have conditions whose ARPs intersect with ones without conditions.
+    This helps clear up [#10](https://github.com/CloudWanderer-io/PolicyGlass/issues/10)
+- Improved `issubset` on `PolicyShard` to recognise that a shard without conditions CANNOT be a subset of a shard with conditions.
+- Added `<` and `>` to `PolicyShard`.
+- Updated `difference` on `PolicyShard` so that it only adds `other`'s conditions to `self`'s not_conditions if self is allow and other is deny.
+
+
 # 0.4.7
 
 - Fixed case insensitive `fnmatch` for resources

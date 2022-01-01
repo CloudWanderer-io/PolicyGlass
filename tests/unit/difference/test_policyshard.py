@@ -207,7 +207,7 @@ DIFFERENCE_SCENARIOS = {
             conditions=frozenset(),
         ),
         "second": PolicyShard(
-            effect="Allow",
+            effect="Deny",
             effective_action=EffectiveAction(inclusion=Action("*")),
             effective_resource=EffectiveResource(
                 inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*")})
@@ -342,10 +342,48 @@ DIFFERENCE_SCENARIOS = {
             )
         ],
     },
+    "test_subset_arps_differing_conditions": {
+        "first": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(
+                {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
+            ),
+            not_conditions=frozenset(),
+        ),
+        "second": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(
+                {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+            ),
+            not_conditions=frozenset(),
+        ),
+        "result": [
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                conditions=frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
+                ),
+                not_conditions=frozenset(),
+            ),
+        ],
+    },
 }
 
 
 @pytest.mark.parametrize("_, scenario", DIFFERENCE_SCENARIOS.items())
 def test_difference(_, scenario):
-    first, second, result = scenario.values()
+    first = scenario["first"]
+    second = scenario["second"]
+    result = scenario["result"]
     assert first.difference(second) == result
