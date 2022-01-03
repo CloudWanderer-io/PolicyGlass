@@ -62,10 +62,13 @@ def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = 
             # differing conditions) then this difference should be added to the dedupe list *instead* of
             # shard A because shard B covers the intersection with fewer conditions.
 
-            differences = undeduped_shard.difference(deduped_shard)
+            if not deduped_shard.intersection(undeduped_shard):
+                continue
+
+            differences = undeduped_shard.difference(deduped_shard, dedupe_result=False)
             if differences and differences != [undeduped_shard]:
                 for difference in differences:
-                    if difference < undeduped_shard and not difference.issubset(deduped_shard):
+                    if difference < undeduped_shard and not difference.intersection(deduped_shard):
                         difference_buffer.append(difference)
 
         if removed_buffer:
@@ -179,14 +182,18 @@ class PolicyShard(BaseModel):
             for effective_principal in self.effective_principal.union(other.effective_principal)
         ]
 
-    def difference(self, other: object) -> List["PolicyShard"]:
+    def difference(self, other: object, dedupe_result: bool = True) -> List["PolicyShard"]:
         """Calculate the difference between this and another object of the same type.
 
         Effectively subtracts the inclusions of ``other`` from ``self``.
         This is useful when applying denies (``other``) to allows (``self``).
 
         Parameters:
-            other: The object to subtract from this one.
+            other:
+                The object to subtract from this one.
+            dedupe_result:
+                Whether to deduplicate the resulting PolicyShards or not.
+                Setting this to ``False`` will lead to many duplicates.
 
         Raises:
             ValueError: If ``other`` is not the same type as this object.
@@ -272,7 +279,7 @@ class PolicyShard(BaseModel):
             # i.e. we need to add a duplicate self with the other's condition in our not condition.
             not_conditions = self.not_conditions
             if other.effect == "Deny" and self.effect == "Allow":
-                not_conditions = frozenset(set(self.not_conditions).union(set(other.conditions)))
+                not_conditions = frozenset(self.not_conditions.union(other.conditions))
             result.append(
                 self.__class__(
                     effect=self.effect,
@@ -283,8 +290,40 @@ class PolicyShard(BaseModel):
                     not_conditions=not_conditions,
                 )
             )
+        if dedupe_result:
+            return dedupe_policy_shard_subsets(result)
+        return result
 
-        return dedupe_policy_shard_subsets(result)
+    def intersection(self, other: object) -> Optional["PolicyShard"]:
+        """Calculate the intersection between this object and another object of the same type.
+
+        Parameters:
+            other: The object to intersect with this one.
+
+        Raises:
+            ValueError: if ``other`` is not the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
+
+        intersection_action = self.effective_action.intersection(other.effective_action)
+        intersection_resource = self.effective_resource.intersection(other.effective_resource)
+        intersection_principal = self.effective_principal.intersection(other.effective_principal)
+
+        if not intersection_action or not intersection_resource or not intersection_principal:
+            return None
+        if self.conditions and other.conditions and not self.conditions.intersection(other.conditions):
+            return None
+        if self.not_conditions and other.not_conditions and not self.not_conditions.intersection(other.not_conditions):
+            return None
+        return self.__class__(
+            effect=self.effect,
+            effective_action=intersection_action,
+            effective_resource=intersection_resource,
+            effective_principal=intersection_principal,
+            conditions=self.conditions.intersection(other.conditions),
+            not_conditions=self.not_conditions.intersection(other.not_conditions),
+        )
 
     def issubset(self, other: object) -> bool:
         """Whether this object contains all the elements of another object (i.e. is a subset of the other object).

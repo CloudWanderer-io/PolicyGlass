@@ -10,6 +10,8 @@
 - Ensured that Conditions are always treated as a set not a list.
 - Ensured that Condition's Operator, Key, Values are always of type ConditionOperator, ConditionKey and ConditionValue.
 - Corrected bug in `CaseInsensitiveString` that caused it to generate case sensitive hashes.
+- Added `dedupe_result` param to `difference` method on `PolicyShard` to allow merging of intersecting shards that are not subsets of one another.
+- Added `intersection` to `PolicyShard`.
 
 # 0.4.7
 
