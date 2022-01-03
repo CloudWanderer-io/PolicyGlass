@@ -93,7 +93,7 @@ class EffectiveARP(Generic[T]):
             other: The object to intersect with this one.
 
         Raises:
-            ValueError: if ``other`` is not hte same type as this object.
+            ValueError: if ``other`` is not the same type as this object.
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
@@ -209,7 +209,6 @@ class EffectiveARP(Generic[T]):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
-        print(self.issubset(other))
         return self.issubset(other) and self != other
 
     def __gt__(self, other: object) -> bool:

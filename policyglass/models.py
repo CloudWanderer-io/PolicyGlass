@@ -19,7 +19,7 @@ class CaseInsensitiveString(str):
 
     def __hash__(self) -> int:
         """Compute the hash for this object."""
-        return super().__hash__()
+        return hash(self.lower())
 
     def __repr__(self) -> str:
         """Return an instantiable representation of this object."""

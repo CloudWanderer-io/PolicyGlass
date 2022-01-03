@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from policyglass import ConditionCollection, Policy
+from policyglass import Policy, RawConditionCollection
 
 POLICIES = {
     "simple_iam_policy_strings": {
@@ -60,4 +60,4 @@ def test_policy_json_equality(_, policy):
 def test_policy_types(_, policy):
     subject = Policy(**policy).statement[0].condition
 
-    assert isinstance(subject, ConditionCollection) or subject is None
+    assert isinstance(subject, RawConditionCollection) or subject is None

@@ -1,8 +1,8 @@
 """PolicyGlass."""
 from .action import Action, EffectiveAction
-from .condition import Condition, ConditionCollection, ConditionKey, ConditionOperator, ConditionValue
+from .condition import Condition, ConditionKey, ConditionOperator, ConditionValue, RawConditionCollection
 from .policy import Policy
-from .policy_shard import PolicyShard, dedupe_policy_shards, policy_shards_effect, policy_shards_to_json
+from .policy_shard import PolicyShard, delineate_intersecting_shards, policy_shards_effect, policy_shards_to_json
 from .principal import EffectivePrincipal, Principal, PrincipalCollection, PrincipalType, PrincipalValue
 from .resource import EffectiveResource, Resource
 from .statement import Statement
@@ -21,12 +21,12 @@ __all__ = [
     "ConditionKey",
     "ConditionOperator",
     "ConditionValue",
-    "ConditionCollection",
+    "RawConditionCollection",
     "EffectiveAction",
     "EffectiveResource",
     "EffectivePrincipal",
     "PolicyShard",
     "policy_shards_effect",
-    "dedupe_policy_shards",
+    "delineate_intersecting_shards",
     "policy_shards_to_json",
 ]
