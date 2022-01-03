@@ -205,18 +205,50 @@ class PolicyShard(BaseModel):
             # But subtracting an Allow from a Deny is nonsensical.
             raise ValueError("Cannot calculate deny.difference(allow).")
 
+        if not self.intersection(other):
+            # Shards do not intersect
+            return [self]
+
+        result = self._decompose_difference(other)
+
+        if (other.conditions and self.conditions != other.conditions) or (
+            other.not_conditions and self.not_conditions != other.not_conditions
+        ):
+            # If the other has a condition and it's not identical to self's, then there is difference
+            # such that self's conditions appliy and other's conditions do not.
+            # i.e. we need to add another PolicyShard that is ALL the ARP differences
+            # If self is Allow and other is Deny we must add the deny's conditions as not_conditions.
+            not_conditions = self.not_conditions
+            if self.effect == "Allow" and other.effect == "Deny":
+                not_conditions = frozenset(self.not_conditions.union(other.conditions))
+            result.append(
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=self.effective_action,
+                    effective_resource=self.effective_resource,
+                    effective_principal=self.effective_principal,
+                    conditions=self.conditions,
+                    not_conditions=not_conditions,
+                )
+            )
+        if dedupe_result:
+            return dedupe_policy_shard_subsets(result)
+        return result
+
+    def _decompose_difference(self, other: "PolicyShard") -> List["PolicyShard"]:
+        """Decompose self and recompose with all possible ARP differences/intersections with other.
+
+        Parameters:
+            other: The other PolicyShard to recompose this one with.
+        """
         intersection_action = self.effective_action.intersection(other.effective_action)
         intersection_resource = self.effective_resource.intersection(other.effective_resource)
         intersection_principal = self.effective_principal.intersection(other.effective_principal)
-
         if not intersection_action or not intersection_resource or not intersection_principal:
-            # Shards do not overlap
-            return [self]
-
+            return []
         difference_actions = self.effective_action.difference(other.effective_action)
         difference_resources = self.effective_resource.difference(other.effective_resource)
         difference_principals = self.effective_principal.difference(other.effective_principal)
-
         result = []
         all_possible_combinations = [
             (action, resource, principal)
@@ -264,29 +296,6 @@ class PolicyShard(BaseModel):
                     for difference_principal in difference_principals
                 ]
             )
-
-        if (other.conditions and self.conditions != other.conditions) or (
-            other.not_conditions and self.not_conditions != other.not_conditions
-        ):
-            # If the other has a condition and it's not identical to self's, then there is difference
-            # such that self's conditions appliy and other's conditions do not.
-            # i.e. we need to add another PolicyShard that is ALL the ARP differences
-            # If self is Allow and other is Deny we must add the deny's conditions as not_conditions.
-            not_conditions = self.not_conditions
-            if self.effect == "Allow" and other.effect == "Deny":
-                not_conditions = frozenset(self.not_conditions.union(other.conditions))
-            result.append(
-                self.__class__(
-                    effect=self.effect,
-                    effective_action=self.effective_action,
-                    effective_resource=self.effective_resource,
-                    effective_principal=self.effective_principal,
-                    conditions=self.conditions,
-                    not_conditions=not_conditions,
-                )
-            )
-        if dedupe_result:
-            return dedupe_policy_shard_subsets(result)
         return result
 
     def intersection(self, other: object) -> Optional["PolicyShard"]:
@@ -300,17 +309,26 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
-
+        if self.effect == "Deny" and other.effect == "Allow":
+            # I don't know what it means to calculate the intersection between a deny and an allow.
+            # Intersection between an Allow and Deny makes sense, as that is what is denied.
+            # But adding an Allow to a Deny is nonsensical.
+            raise ValueError("Cannot calculate deny.intersection(allow).")
         intersection_action = self.effective_action.intersection(other.effective_action)
         intersection_resource = self.effective_resource.intersection(other.effective_resource)
         intersection_principal = self.effective_principal.intersection(other.effective_principal)
 
         if not intersection_action or not intersection_resource or not intersection_principal:
             return None
-        if self.conditions and other.conditions and not self.conditions.intersection(other.conditions):
-            return None
-        if self.not_conditions and other.not_conditions and not self.not_conditions.intersection(other.not_conditions):
-            return None
+        if self.effect == other.effect:
+            if self.conditions and other.conditions and not self.conditions.intersection(other.conditions):
+                return None
+            if (
+                self.not_conditions
+                and other.not_conditions
+                and not self.not_conditions.intersection(other.not_conditions)
+            ):
+                return None
         return self.__class__(
             effect=self.effect,
             effective_action=intersection_action,
