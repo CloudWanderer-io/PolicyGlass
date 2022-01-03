@@ -407,7 +407,7 @@ class PolicyShard(BaseModel):
 
         return result
 
-    def _iter(self, *args, **kwargs) -> Iterator[Tuple[str, Any]]:
+    def _iter(self, *args, **kwargs) -> Iterator[Tuple[str, Any]]:  # type: ignore[override]
         for key, value in self.dict(*args, **kwargs).items():
             yield key, value
 
