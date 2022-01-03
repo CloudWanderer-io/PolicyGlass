@@ -241,10 +241,8 @@ class PolicyShard(BaseModel):
         Parameters:
             other: The other PolicyShard to recompose this one with.
         """
-        intersection_action = self.effective_action.intersection(other.effective_action)
-        intersection_resource = self.effective_resource.intersection(other.effective_resource)
-        intersection_principal = self.effective_principal.intersection(other.effective_principal)
-        if not intersection_action or not intersection_resource or not intersection_principal:
+        intersection = self.intersection(other)
+        if not intersection:
             return []
         difference_actions = self.effective_action.difference(other.effective_action)
         difference_resources = self.effective_resource.difference(other.effective_resource)
@@ -252,9 +250,9 @@ class PolicyShard(BaseModel):
         result = []
         all_possible_combinations = [
             (action, resource, principal)
-            for action in [self.effective_action, intersection_action]
-            for resource in [self.effective_resource, intersection_resource]
-            for principal in [self.effective_principal, intersection_principal]
+            for action in [self.effective_action, intersection.effective_action]
+            for resource in [self.effective_resource, intersection.effective_resource]
+            for principal in [self.effective_principal, intersection.effective_principal]
         ]
         for action, resource, principal in all_possible_combinations:
             result.extend(
