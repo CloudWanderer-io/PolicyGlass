@@ -281,9 +281,9 @@ class PolicyShard(BaseModel):
             # If the other has a condition and it's not identical to self's, then there is difference
             # such that self's conditions appliy and other's conditions do not.
             # i.e. we need to add another PolicyShard that is ALL the ARP differences
-            # and if other is Deny and self is Allow we must
+            # If self is Allow and other is Deny we must add the deny's conditions as not_conditions.
             not_conditions = self.not_conditions
-            if other.effect == "Deny" and self.effect == "Allow":
+            if self.effect == "Allow" and other.effect == "Deny":
                 not_conditions = frozenset(self.not_conditions.union(other.conditions))
             result.append(
                 self.__class__(
