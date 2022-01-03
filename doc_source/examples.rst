@@ -154,8 +154,7 @@ Deny Not Resource Policy
    ...         }
    ...     ]
    ... })
-   >>> deduped_shards = dedupe_policy_shards(policy_a.policy_shards)
-   >>> shards_effect = policy_shards_effect(deduped_shards)
+   >>> shards_effect = dedupe_policy_shards(policy_shards_effect(policy_a.policy_shards))
    >>> print(policy_shards_to_json(shards_effect, exclude_defaults=True, indent=2))
    [
       {
@@ -177,7 +176,10 @@ Deny Not Resource Policy
           "inclusion": "s3:*"
         },
         "effective_resource": {
-          "inclusion": "*"
+          "inclusion": "*",
+          "exclusions": [
+            "arn:aws:s3:::examplebucket/*"
+          ]
         },
         "effective_principal": {
           "inclusion": {

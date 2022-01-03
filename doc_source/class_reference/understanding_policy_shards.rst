@@ -36,23 +36,23 @@ Let's consider this scenario
     ...     effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})),
     ...     effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
     ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-    ...     conditions=FrozenConditionCollection(
+    ...     conditions=frozenset(
     ...         {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
     ...     ),
-    ...     not_conditions=FrozenConditionCollection(),
+    ...     not_conditions=frozenset(),
     ... )
     >>> shard_b = PolicyShard(
     ...     effect="Allow",
     ...     effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
     ...     effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
     ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-    ...     conditions=FrozenConditionCollection(
+    ...     conditions=frozenset(
     ...         {
     ...             Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
     ...             Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]),
     ...         }
     ...     ),
-    ...     not_conditions=FrozenConditionCollection(),
+    ...     not_conditions=frozenset(),
     ... )
 
 Shard A
