@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import Dict, List
+from typing import Dict, FrozenSet, List
 
 from pydantic import BaseModel
 
@@ -41,24 +41,24 @@ class Condition(BaseModel):
 
     def __init__(self, key: ConditionKey, operator: ConditionOperator, values: List[ConditionValue]) -> None:
         super().__init__(
-            key=key,
-            operator=operator,
-            values=values,
+            key=ConditionKey(key),
+            operator=ConditionOperator(operator),
+            values=[ConditionValue(value) for value in values],
         )
 
     @classmethod
-    def factory(cls, condition_collection: "ConditionCollection") -> List["Condition"]:
-        result = []
+    def factory(cls, condition_collection: "RawConditionCollection") -> "FrozenSet[Condition]":
+        result = set()
         for operator, operator_values in condition_collection.items():
             for key, values in operator_values.items():
-                result.append(
+                result.add(
                     cls(
                         key=ConditionKey(key),
                         operator=ConditionOperator(operator),
                         values=[ConditionValue(value) for value in values],
                     )
                 )
-        return result
+        return frozenset(result)
 
     def __eq__(self, other: object) -> bool:
         """Determine whether this object and another object are equal.
@@ -81,18 +81,18 @@ class Condition(BaseModel):
 
     def __hash__(self) -> int:
         """Return a hash representation of this object."""
-        return hash(self.__repr__())
+        return hash((self.key, self.operator, tuple(self.values)))
 
     def __str__(self) -> str:
         """Return a string representation of this object."""
         return f"{self.key} {self.operator} {self.values}"
 
 
-class ConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
+class RawConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
     """A representation of a statement condition."""
 
     @property
-    def conditions(self) -> List[Condition]:
+    def conditions(self) -> FrozenSet[Condition]:
         """Return a list of Condition Shards."""
         return Condition.factory(self)
 

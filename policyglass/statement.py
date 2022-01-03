@@ -5,7 +5,7 @@ from typing import Dict, FrozenSet, List, Optional, Tuple, TypeVar, Union
 from pydantic import BaseModel, validator
 
 from .action import Action, EffectiveAction
-from .condition import Condition, ConditionCollection, ConditionKey, ConditionOperator, ConditionValue
+from .condition import Condition, ConditionKey, ConditionOperator, ConditionValue, RawConditionCollection
 from .policy_shard import PolicyShard
 from .principal import EffectivePrincipal, Principal, PrincipalCollection, PrincipalType, PrincipalValue
 from .resource import EffectiveResource, Resource
@@ -30,7 +30,7 @@ class Statement(BaseModel):
     not_resource: Optional[List[Resource]]
     principal: Optional[PrincipalCollection]
     not_principal: Optional[PrincipalCollection]
-    condition: Optional[ConditionCollection]
+    condition: Optional[RawConditionCollection]
 
     class Config:
         """Configure the Pydantic BaseModel."""
@@ -93,16 +93,16 @@ class Statement(BaseModel):
     @validator("condition", pre=True)
     def ensure_condition_value_list(
         cls, v: Dict[ConditionKey, Dict[ConditionOperator, Union[ConditionValue, List[ConditionValue]]]]
-    ) -> ConditionCollection:
+    ) -> RawConditionCollection:
         output: Dict = {}
         for operator, key_and_values in v.items():
-            output[operator] = {}
+            output[ConditionOperator(operator)] = {}
             for key, values in key_and_values.items():
                 if isinstance(values, list):
                     output[ConditionOperator(operator)][ConditionKey(key)] = values
                 else:
                     output[ConditionOperator(operator)][ConditionKey(key)] = [values]
-        return ConditionCollection(output)
+        return RawConditionCollection(output)
 
     @validator("principal", "not_principal", pre=True)
     def ensure_principal_dict(

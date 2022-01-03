@@ -5,7 +5,11 @@
 - Improved `issubset` on `PolicyShard` to recognise that a shard without conditions CANNOT be a subset of a shard with conditions.
 - Added `<` and `>` to `PolicyShard`.
 - Updated `difference` on `PolicyShard` so that it only adds `other`'s conditions to `self`'s not_conditions if self is allow and other is deny.
-
+- Added documentation on how PolicyShard dedupe works
+- Renamed `ConditionCollection` to `RawConditionCollection`
+- Ensured that Conditions are always treated as a set not a list.
+- Ensured that Condition's Operator, Key, Values are always of type ConditionOperator, ConditionKey and ConditionValue.
+- Corrected bug in `CaseInsensitiveString` that caused it to generate case sensitive hashes.
 
 # 0.4.7
 

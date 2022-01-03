@@ -93,7 +93,7 @@ class EffectiveARP(Generic[T]):
             other: The object to intersect with this one.
 
         Raises:
-            ValueError: if ``other`` is not hte same type as this object.
+            ValueError: if ``other`` is not the same type as this object.
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
