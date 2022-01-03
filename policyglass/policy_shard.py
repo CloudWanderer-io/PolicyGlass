@@ -62,9 +62,8 @@ def delineate_intersecting_shards(shards: Iterable["PolicyShard"], check_reverse
             # differing conditions) then this difference should be added to the dedupe list *instead* of
             # shard A because shard B covers the intersection with fewer conditions.
 
-            if not deduped_shard.intersection(undeduped_shard):
+            if undeduped_shard.effect != deduped_shard.effect or not deduped_shard.intersection(undeduped_shard):
                 continue
-
             differences = undeduped_shard.difference(deduped_shard, dedupe_result=False)
             if differences and differences != [undeduped_shard]:
                 for difference in differences:
@@ -200,6 +199,11 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot diff {self.__class__.__name__} with {other.__class__.__name__}")
+        if self.effect == "Deny" and other.effect == "Allow":
+            # I don't know what it means to calculate the difference between a deny and an allow.
+            # Difference between an Allow and Deny makes sense, as that is the effective permission.
+            # But subtracting an Allow from a Deny is nonsensical.
+            raise ValueError("Cannot calculate deny.difference(allow).")
 
         intersection_action = self.effective_action.intersection(other.effective_action)
         intersection_resource = self.effective_resource.intersection(other.effective_resource)
@@ -274,9 +278,10 @@ class PolicyShard(BaseModel):
         if (other.conditions and self.conditions != other.conditions) or (
             other.not_conditions and self.not_conditions != other.not_conditions
         ):
-            # If the other has a condition and it's not identical to self's, then this means that self's effective ARPs
-            # are not negated by other's ARPs if other's condition does not apply.
-            # i.e. we need to add a duplicate self with the other's condition in our not condition.
+            # If the other has a condition and it's not identical to self's, then there is difference
+            # such that self's conditions appliy and other's conditions do not.
+            # i.e. we need to add another PolicyShard that is ALL the ARP differences
+            # and if other is Deny and self is Allow we must
             not_conditions = self.not_conditions
             if other.effect == "Deny" and self.effect == "Allow":
                 not_conditions = frozenset(self.not_conditions.union(other.conditions))
