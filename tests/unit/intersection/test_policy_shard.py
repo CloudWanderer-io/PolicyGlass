@@ -9,13 +9,20 @@ from policyglass.resource import EffectiveResource, Resource
 
 def test_bad_intersection():
     with pytest.raises(ValueError) as ex:
-        EffectiveAction(Action("S3:*")).intersection(Action("S3:*"))
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            conditions=frozenset(),
+            not_conditions=frozenset(),
+        ).intersection(Action("S3:*"))
 
-    assert "Cannot intersect EffectiveAction with Action" in str(ex.value)
+    assert "Cannot intersect PolicyShard with Action" in str(ex.value)
 
 
 INTERSECTION_SCENARIOS = {
-    "test_action_subset": {
+    "test_subset": {
         "first": PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
