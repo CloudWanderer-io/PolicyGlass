@@ -14,6 +14,7 @@
 - Added `dedupe_result` param to `difference` method on `PolicyShard` to allow merging of intersecting shards that are not subsets of one another.
 - Added `intersection` to `PolicyShard`.
 - Prevent attempting to calculate the difference between a Deny shard and an Allow shard. Other way makes sense as that's effective permission.
+- Updated PolicyShard implementation to Support pydantic 1.9
 
 # 0.4.7
 

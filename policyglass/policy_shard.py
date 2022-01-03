@@ -1,15 +1,15 @@
 """PolicyShards are a simplified representation of policies."""
 
 import json
-from typing import Any, DefaultDict, Dict, FrozenSet, Iterable, List, Optional
+from typing import Any, DefaultDict, Dict, FrozenSet, Iterable, Iterator, List, Optional, Tuple
 
 from pydantic import BaseModel
 
-from .action import Action
+from .action import Action, EffectiveAction
 from .condition import Condition
 from .effective_arp import EffectiveARP
-from .principal import Principal
-from .resource import Resource
+from .principal import EffectivePrincipal, Principal
+from .resource import EffectiveResource, Resource
 
 
 def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
@@ -147,6 +147,15 @@ class PolicyShard(BaseModel):
             conditions=conditions or frozenset(),
             not_conditions=not_conditions or frozenset(),
         )
+
+    class Config:
+        """Pydantic Config."""
+
+        json_encoders = {
+            EffectiveAction: lambda v: v.dict() if v else None,
+            EffectiveResource: lambda v: v.dict() if v else None,
+            EffectivePrincipal: lambda v: v.dict() if v else None,
+        }
 
     def union(self, other: object) -> List["PolicyShard"]:
         """Combine this object with another object of the same type.
@@ -397,6 +406,10 @@ class PolicyShard(BaseModel):
                     result[attribute_name] = value
 
         return result
+
+    def _iter(self, *args, **kwargs) -> Iterator[Tuple[str, Any]]:
+        for key, value in self.dict(*args, **kwargs).items():
+            yield key, value
 
     @property
     def explain(self) -> str:
