@@ -327,13 +327,23 @@ class PolicyShard(BaseModel):
                 and not self.not_conditions.intersection(other.not_conditions)
             ):
                 return None
+
+        # intersection conditions/not_conditions cannot be a proper subset of self's as if they were they would include
+        # scenarios not originally included by self.
+        intersection_conditions = self.conditions.intersection(other.conditions)
+        if intersection_conditions < self.conditions:
+            intersection_conditions = self.conditions
+        intersection_not_conditions = self.not_conditions.intersection(other.not_conditions)
+        if intersection_not_conditions < self.conditions:
+            intersection_not_conditions = self.not_conditions
+
         return self.__class__(
             effect=self.effect,
             effective_action=intersection_action,
             effective_resource=intersection_resource,
             effective_principal=intersection_principal,
-            conditions=self.conditions.intersection(other.conditions),
-            not_conditions=self.not_conditions.intersection(other.not_conditions),
+            conditions=intersection_conditions,
+            not_conditions=intersection_not_conditions,
         )
 
     def issubset(self, other: object) -> bool:

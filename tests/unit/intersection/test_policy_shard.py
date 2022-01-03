@@ -195,6 +195,7 @@ INTERSECTION_SCENARIOS = {
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
             conditions=frozenset(
                 {
+                    Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]),
                     Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
                 }
             ),
