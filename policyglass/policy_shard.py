@@ -35,7 +35,7 @@ def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: 
     return deduped_shards
 
 
-def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
+def delineate_intersecting_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
     """Dedupe policy shards that are subsets of each other and remove intersections.
 
     Parameters:
@@ -81,9 +81,9 @@ def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = 
 
     deduped_shards = deduped_shards + difference_shards
     if check_reverse:
-        deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
+        deduped_shards = delineate_intersecting_shards(reversed(deduped_shards), False)
     if removed_shards or difference_shards:
-        deduped_shards = dedupe_policy_shards(deduped_shards)
+        deduped_shards = delineate_intersecting_shards(deduped_shards)
     return deduped_shards
 
 

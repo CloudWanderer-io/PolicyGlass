@@ -7,7 +7,7 @@ Dedupe & Merge
 :class:`policyglass.policy_shard.PolicyShard` objects need to go through two phases to correct their sizes.
 
 1. Dedupe using :func:`policyglass.policy_shard.dedupe_policy_shard_subsets`
-2. Merge using :func:`policyglass.policy_shard.dedupe_policy_shards`
+2. Merge using :func:`policyglass.policy_shard.delineate_intersecting_shards`
 
 The first collapses all PolicyShards which are subsets of each other into each other, in other words eliminating 
 all smaller PolicyShards that can fit into bigger PolicyShards.
@@ -28,7 +28,7 @@ Let's consider this scenario
     >>> from policyglass import PolicyShard
     >>> from policyglass.action import Action, EffectiveAction
     >>> from policyglass.condition import Condition
-    >>> from policyglass.policy_shard import dedupe_policy_shards
+    >>> from policyglass.policy_shard import delineate_intersecting_shards
     >>> from policyglass.principal import EffectivePrincipal, Principal
     >>> from policyglass.resource import EffectiveResource, Resource
     >>> shard_a = PolicyShard(

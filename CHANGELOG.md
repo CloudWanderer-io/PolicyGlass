@@ -1,6 +1,7 @@
 # 0.5.0
 
-- Updated `dedupe_policy_shards` to reduce the size of `PolicyShard`s which have conditions whose ARPs intersect with ones without conditions.
+- Renamed `dedupe_policy_shards` to `dedupe_policy_shard_subsets` to differentiate it from `delineate_intersecting_shards`.
+- Added `delineate_intersecting_shards` to reduce the size of `PolicyShard`s which have conditions whose ARPs intersect with ones without conditions.
     This helps clear up [#10](https://github.com/CloudWanderer-io/PolicyGlass/issues/10)
 - Improved `issubset` on `PolicyShard` to recognise that a shard without conditions CANNOT be a subset of a shard with conditions.
 - Added `<` and `>` to `PolicyShard`.

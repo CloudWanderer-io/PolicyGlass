@@ -1,12 +1,12 @@
 from policyglass import PolicyShard
 from policyglass.action import Action, EffectiveAction
 from policyglass.condition import Condition
-from policyglass.policy_shard import dedupe_policy_shards
+from policyglass.policy_shard import delineate_intersecting_shards
 from policyglass.principal import EffectivePrincipal, Principal
 from policyglass.resource import EffectiveResource, Resource
 
 
-def test_dedupe_policy_shards_simple():
+def test_delineate_intersecting_shards_simple():
     shards = [
         PolicyShard(
             effect="Allow",
@@ -38,7 +38,7 @@ def test_dedupe_policy_shards_simple():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [
+    assert delineate_intersecting_shards(shards) == [
         PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
@@ -56,7 +56,7 @@ def test_dedupe_policy_shards_simple():
     ]
 
 
-def test_dedupe_policy_shards_complex_overlap():
+def test_delineate_intersecting_shards_complex_overlap():
     shards = [
         PolicyShard(
             effect="Allow",
@@ -74,7 +74,7 @@ def test_dedupe_policy_shards_complex_overlap():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [shards[1]]
+    assert delineate_intersecting_shards(shards) == [shards[1]]
 
 
 def test_larger_after_smaller():
@@ -106,7 +106,7 @@ def test_larger_after_smaller():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [shards[1]]
+    assert delineate_intersecting_shards(shards) == [shards[1]]
 
 
 def test_identical():
@@ -133,7 +133,7 @@ def test_identical():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [shards[1]]
+    assert delineate_intersecting_shards(shards) == [shards[1]]
 
 
 def test_identical_except_one_with_one_without_condition():
@@ -162,7 +162,7 @@ def test_identical_except_one_with_one_without_condition():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [shards[1]]
+    assert delineate_intersecting_shards(shards) == [shards[1]]
 
 
 def test_matching_subset_conditions():
@@ -192,7 +192,7 @@ def test_matching_subset_conditions():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [
+    assert delineate_intersecting_shards(shards) == [
         PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
@@ -249,7 +249,7 @@ def test_matching_subset_conditions_and_not_conditions():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == [
+    assert delineate_intersecting_shards(shards) == [
         PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
@@ -305,4 +305,4 @@ def test_subset_arps_differing_conditions():
         ),
     ]
 
-    assert dedupe_policy_shards(shards) == list(reversed(shards))
+    assert delineate_intersecting_shards(shards) == list(reversed(shards))

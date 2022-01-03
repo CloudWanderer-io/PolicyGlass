@@ -45,7 +45,7 @@ Let's take two policies, *a* and *b* and pit them against each other.
 
 .. doctest:: 
 
-   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_effect
+   >>> from policyglass import Policy, policy_shards_effect
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
