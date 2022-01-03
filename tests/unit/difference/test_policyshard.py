@@ -18,6 +18,23 @@ def test_bad_difference():
 
 
 DIFFERENCE_SCENARIOS = {
+    "exactly_equal": {
+        "first": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+            conditions=frozenset(),
+        ),
+        "second": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*")),
+            effective_resource=EffectiveResource(inclusion=Resource("*")),
+            effective_principal=EffectivePrincipal(Principal("AWS", "*")),
+            conditions=frozenset(),
+        ),
+        "result": [],
+    },
     "proper_subset": {
         "first": PolicyShard(
             effect="Allow",

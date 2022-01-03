@@ -217,16 +217,6 @@ class PolicyShard(BaseModel):
         difference_resources = self.effective_resource.difference(other.effective_resource)
         difference_principals = self.effective_principal.difference(other.effective_principal)
 
-        if (
-            not difference_actions
-            and not difference_resources
-            and not difference_principals
-            and self.conditions == other.conditions
-            and self.not_conditions == other.not_conditions
-        ):
-            # Shards overlap wholly
-            return []
-
         result = []
         all_possible_combinations = [
             (action, resource, principal)
