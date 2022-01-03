@@ -33,8 +33,8 @@ Let's consider this scenario
     >>> shard_a = PolicyShard(
     ...     effect="Allow",
     ...     effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})),
-    ...     effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
-    ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+    ...     effective_resource=EffectiveResource(inclusion=Resource("*")),
+    ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*")),
     ...     conditions=frozenset(
     ...         {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
     ...     ),
@@ -42,9 +42,9 @@ Let's consider this scenario
     ... )
     >>> shard_b = PolicyShard(
     ...     effect="Allow",
-    ...     effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
-    ...     effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
-    ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+    ...     effective_action=EffectiveAction(inclusion=Action("s3:*")),
+    ...     effective_resource=EffectiveResource(inclusion=Resource("*")),
+    ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*")),
     ...     conditions=frozenset(
     ...         {
     ...             Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
@@ -74,20 +74,26 @@ To do this we use :func:`~policyglass.policy_shard.delineate_intersecting_shards
 
     >>> from policyglass.policy_shard import delineate_intersecting_shards
     >>> shard_b_delineated, shard_a_delineated = delineate_intersecting_shards([shard_a, shard_b])
-    >>> print(shard_a_delineated)
-    PolicyShard(effect='Allow', 
-        effective_action=EffectiveAction(inclusion=Action('s3:*'), exclusions=frozenset({Action('s3:PutObject')})), 
-        effective_resource=EffectiveResource(inclusion=Resource('*'), exclusions=frozenset()),
-        effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), exclusions=frozenset()), 
-        conditions=frozenset({Condition(key='aws:PrincipalOrgId', operator='StringNotEquals', values=['o-123456'])}), 
-        not_conditions=frozenset())
-    >>> print(shard_b_delineated)
-    PolicyShard(effect='Allow', 
-        effective_action=EffectiveAction(inclusion=Action('s3:PutObject'), exclusions=frozenset()), 
-        effective_resource=EffectiveResource(inclusion=Resource('*'), exclusions=frozenset()), 
-        effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), exclusions=frozenset()), 
-        conditions=frozenset({Condition(key='aws:PrincipalOrgId', operator='StringNotEquals', values=['o-123456']),
-            Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256'])}), 
-        not_conditions=frozenset())
+    >>> assert shard_a_delineated == PolicyShard(
+    ...     effect='Allow', 
+    ...     effective_action=EffectiveAction(inclusion=Action('s3:*'), exclusions=frozenset({Action('s3:PutObject')})), 
+    ...     effective_resource=EffectiveResource(inclusion=Resource('*')),
+    ...     effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*')), 
+    ...     conditions=frozenset(
+    ...         {Condition(key='aws:PrincipalOrgId', operator='StringNotEquals', values=['o-123456'])}
+    ...     ), 
+    ...     not_conditions=frozenset()
+    ... )
+    >>> assert shard_b_delineated == PolicyShard(
+    ...    effect='Allow', 
+    ...    effective_action=EffectiveAction(inclusion=Action('s3:PutObject')), 
+    ...    effective_resource=EffectiveResource(inclusion=Resource('*')), 
+    ...    effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*')), 
+    ...    conditions=frozenset({
+    ...        Condition(key='aws:PrincipalOrgId', operator='StringNotEquals', values=['o-123456']),
+    ...        Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256'])
+    ...    }), 
+    ...    not_conditions=frozenset()
+    ... )
 
-You'll notice that the intersection has been removed, and Shard B now only has ``s3:PutObject`` as the rest of ``s3:*`` was covered by Shard A.
+You'll notice that the intersection has been removed, as Shard B now only has ``s3:PutObject`` as the rest of ``s3:*`` was covered by Shard A.
