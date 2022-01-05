@@ -189,7 +189,9 @@ DIFFERENCE_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("*")),
             effective_resource=EffectiveResource(inclusion=Resource("*")),
             effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
-            conditions=frozenset({Condition("Key", "Operator", ["Value"])}),
+            conditions=frozenset(
+                {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
+            ),
         ),
         "result": [
             PolicyShard(
@@ -211,7 +213,9 @@ DIFFERENCE_SCENARIOS = {
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
                 conditions=frozenset(),
-                not_conditions=frozenset({Condition(key="Key", operator="Operator", values=["Value"])}),
+                not_conditions=frozenset(
+                    {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
+                ),
             ),
         ],
     },
@@ -230,7 +234,9 @@ DIFFERENCE_SCENARIOS = {
                 inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*")})
             ),
             effective_principal=EffectivePrincipal(Principal("AWS", "*")),
-            conditions=frozenset({Condition("Key", "Operator", ["Value"])}),
+            conditions=frozenset(
+                {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
+            ),
         ),
         "result": [
             PolicyShard(
@@ -253,7 +259,9 @@ DIFFERENCE_SCENARIOS = {
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
                 conditions=frozenset(),
-                not_conditions=frozenset({Condition(key="Key", operator="Operator", values=["Value"])}),
+                not_conditions=frozenset(
+                    {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
+                ),
             ),
         ],
     },

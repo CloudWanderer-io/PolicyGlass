@@ -1,6 +1,13 @@
 """PolicyGlass."""
 from .action import Action, EffectiveAction
-from .condition import Condition, ConditionKey, ConditionOperator, ConditionValue, RawConditionCollection
+from .condition import (
+    Condition,
+    ConditionKey,
+    ConditionOperator,
+    ConditionValue,
+    EffectiveCondition,
+    RawConditionCollection,
+)
 from .deprecated import delineate_intersecting_shards
 from .policy import Policy
 from .policy_shard import (
@@ -32,6 +39,7 @@ __all__ = [
     "EffectiveAction",
     "EffectiveResource",
     "EffectivePrincipal",
+    "EffectiveCondition",
     "PolicyShard",
     "policy_shards_effect",
     "dedupe_policy_shards",

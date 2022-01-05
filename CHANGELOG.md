@@ -4,7 +4,8 @@
 - Added `explain_policy_shards` to eventually replace `explain` attribute on `PolicyShard` class entirely.
 - Added `__contains__` to `EffectiveARP` classes
 - Added `reverse` method to `Condition` to reverse the operator/value to reverse the effect of the condition.
-- Added `factory` method to `PolicyShard` that uses `Condition.reverse` to try to eliminate `not_conditions` where possible.
+- Added `EffectiveCondition` class to house `factory` method which normalisises `not_conditions` into `conditions` where possible. This may end up being a replacement for the `conditions` and `not_conditions` attributes on `PolicyShard`.
+- Normlised `not_conditions` into `conditions` where possible upon instantiation of `PolicyShard`.
 
 # 0.5.0
 

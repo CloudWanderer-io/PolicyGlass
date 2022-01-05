@@ -19,7 +19,7 @@ def test_policy_shard_explain_attribute():
             exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/role-name")}),
         ),
         conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
-        not_conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+        not_conditions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
     )
 
     assert (
@@ -27,7 +27,7 @@ def test_policy_shard_explain_attribute():
         "(except for arn:aws:s3:::DOC-EXAMPLE-BUCKET/*) with principal AWS * "
         "(except principals AWS arn:aws:iam::123456789012:role/role-name). "
         "Provided conditions s3:x-amz-server-side-encryption StringNotEquals ['AES256'] are met. "
-        "Unless conditions s3:x-amz-server-side-encryption StringNotEquals ['AES256'] are met."
+        "Unless conditions key BinaryEquals ['QmluYXJ5VmFsdWVJbkJhc2U2NA=='] are met."
     )
 
 
@@ -43,7 +43,7 @@ def test_explain_policy_shards_function():
             exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/role-name")}),
         ),
         conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
-        not_conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+        not_conditions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
     )
 
     assert explain_policy_shards([shard]) == [
@@ -51,7 +51,7 @@ def test_explain_policy_shards_function():
         "(except for arn:aws:s3:::DOC-EXAMPLE-BUCKET/*) with principal AWS * "
         "(except principals AWS arn:aws:iam::123456789012:role/role-name). "
         "Provided conditions s3:x-amz-server-side-encryption StringNotEquals ['AES256'] are met. "
-        "Unless conditions s3:x-amz-server-side-encryption StringNotEquals ['AES256'] are met."
+        "Unless conditions key BinaryEquals ['QmluYXJ5VmFsdWVJbkJhc2U2NA=='] are met."
     ]
 
 

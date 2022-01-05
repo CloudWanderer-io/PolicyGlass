@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import Dict, FrozenSet, List
+from typing import Dict, FrozenSet, List, NamedTuple, Optional
 
 from pydantic import BaseModel
 
@@ -149,6 +149,35 @@ class Condition(BaseModel):
     def __str__(self) -> str:
         """Return a string representation of this object."""
         return f"{self.key} {self.operator} {self.values}"
+
+
+class EffectiveCondition(NamedTuple):
+    """A pair of sets for inclusions and exclusion conditions."""
+
+    #: Conditions which must be met
+    inclusions: FrozenSet[Condition]
+    #: Conditions which must NOT be met
+    exclusions: FrozenSet[Condition]
+
+    @classmethod
+    def factory(
+        cls, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
+    ) -> "EffectiveCondition":
+        """Convert ``not_conditions`` to ``conditions`` if possible.
+
+        Parameters:
+            inclusions: The conditions that must be met.
+            exclusions: The conditions that must NOT be met.
+        """
+        normalised_inclusions = set(inclusions or {})
+        normalised_exclusions = set()
+
+        for not_condition in exclusions or {}:
+            try:
+                normalised_inclusions.add(not_condition.reverse)
+            except ValueError:
+                normalised_exclusions.add(not_condition)
+        return EffectiveCondition(frozenset(normalised_inclusions), frozenset(normalised_exclusions))
 
 
 class RawConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
