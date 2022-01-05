@@ -34,6 +34,7 @@ Try it out
 .. image:: https://github.com/CloudWanderer-io/PolicyGlass/blob/dbc313d065247b557e36bfb8dc7ece2684a9cc81/doc_source/images/policyglass-sandbox.gif?raw=true
    :alt: PolicyGlass Sandbox screenshot
    :target: https://sandbox.policyglass.cloudwanderer.io
+   :height: 25em
 
 Try out custom policies quickly without installing anything with the `PolicyGlass Sandbox <https://sandbox.policyglass.cloudwanderer.io>`__.
 
