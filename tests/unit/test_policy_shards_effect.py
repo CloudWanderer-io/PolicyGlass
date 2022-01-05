@@ -160,11 +160,12 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
                 conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    {
+                        Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
+                        Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]),
+                    }
                 ),
-                not_conditions=frozenset(
-                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
-                ),
+                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Allow",

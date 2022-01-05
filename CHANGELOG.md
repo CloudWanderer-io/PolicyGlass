@@ -6,6 +6,7 @@
 - Added `reverse` method to `Condition` to reverse the operator/value to reverse the effect of the condition.
 - Added `EffectiveCondition` class to house `factory` method which normalisises `not_conditions` into `conditions` where possible. This may end up being a replacement for the `conditions` and `not_conditions` attributes on `PolicyShard`.
 - Normlised `not_conditions` into `conditions` where possible upon instantiation of `PolicyShard`.
+- `policy_shards_effect` now runs `dedupe_policy_shards` at the end to simplify the most common execution paths.
 
 # 0.5.0
 

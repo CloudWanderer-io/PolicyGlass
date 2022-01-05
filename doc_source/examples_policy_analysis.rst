@@ -4,7 +4,7 @@ Examples of Policy Analysis
 Example Policy
 ---------------------
 
-Let's use a complex IAM policy as our example to demonstrate the value in analyzing policies with PolicyGlas.
+Let's use a complex IAM policy as our example to demonstrate the value in analyzing policies with PolicyGlass.
 
 .. doctest:: 
 
@@ -78,20 +78,13 @@ To answer this we need to check 2 things:
 
 As we have multiple (3) shards we have to make sure both of the answers are true for the same shard.
 
-We can do this with a list comprehension
+We can do this with a list comprehension and utilise the ``in`` operator to check that the 
+:class:`~policyglass.action.EffectiveAction` contains ``s3:PutObject`` and that the 
+:class:`~policyglass.resource.EffectiveResource` contains ``arn:aws:s3:::some-other-bucket/*``.
 
 .. doctest:: 
 
-    >>> from policyglass import (
-    ...     Action,
-    ...     Resource,
-    ...     Principal,
-    ...     PolicyShard,
-    ...     EffectiveAction,
-    ...     EffectiveResource,
-    ...     EffectivePrincipal,
-    ...     Condition
-    ... )
+    >>> from policyglass import Action, Resource
     >>> action = Action('s3:PutObject')
     >>> resource = Resource('arn:aws:s3:::some-other-bucket/*')
     >>> result = [
@@ -112,6 +105,14 @@ We can do this with a list comprehension
 .. doctest::
     :hide:
 
+    >>> from policyglass import (
+    ...     Principal,
+    ...     PolicyShard,
+    ...     EffectiveAction,
+    ...     EffectiveResource,
+    ...     EffectivePrincipal,
+    ...     Condition
+    ... )
     >>> assert result == [PolicyShard(effect='Allow', 
     ... effective_action=EffectiveAction(inclusion=Action('s3:PutObject'), exclusions=frozenset()), 
     ... effective_resource=EffectiveResource(inclusion=Resource('*'), exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
