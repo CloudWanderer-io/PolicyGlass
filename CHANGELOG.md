@@ -2,6 +2,7 @@
 
 - Renamed `delineate_intersecting_shards` to `dedupe_policy_shards` to better reflect how people will use it.
 - Added `explain_policy_shards` to eventually replace `explain` attribute on `PolicyShard` class entirely.
+- Added `__contains__` to `EffectiveARP` classes
 
 # 0.5.0
 
