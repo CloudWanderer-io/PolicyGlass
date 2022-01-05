@@ -6,7 +6,7 @@ from typing import Any, DefaultDict, Dict, FrozenSet, Iterable, Iterator, List, 
 from pydantic import BaseModel
 
 from .action import Action, EffectiveAction
-from .condition import Condition
+from .condition import Condition, EffectiveCondition
 from .effective_arp import EffectiveARP
 from .principal import EffectivePrincipal, Principal
 from .resource import EffectiveResource, Resource
@@ -35,7 +35,7 @@ def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: 
     return deduped_shards
 
 
-def delineate_intersecting_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
+def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
     """Dedupe policy shards that are subsets of each other and remove intersections.
 
     Parameters:
@@ -80,9 +80,9 @@ def delineate_intersecting_shards(shards: Iterable["PolicyShard"], check_reverse
 
     deduped_shards = deduped_shards + difference_shards
     if check_reverse:
-        deduped_shards = delineate_intersecting_shards(reversed(deduped_shards), False)
+        deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
     if removed_shards or difference_shards:
-        deduped_shards = delineate_intersecting_shards(deduped_shards)
+        deduped_shards = dedupe_policy_shards(deduped_shards)
     return deduped_shards
 
 
@@ -106,7 +106,7 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
             allow_candidates = result
         if allow_candidates:
             merged_allow_shards.extend(allow_candidates)
-    return merged_allow_shards
+    return dedupe_policy_shards(merged_allow_shards)
 
 
 def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, **kwargs) -> str:
@@ -118,6 +118,21 @@ def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, *
         **kwargs: keyword arguments passed on to :func:`json.dumps`
     """
     return json.dumps([json.loads(shard.json(exclude_defaults=exclude_defaults)) for shard in shards], **kwargs)
+
+
+def explain_policy_shards(shards: List["PolicyShard"], language: str = "en") -> List[str]:
+    """Return a list of string explanations for a given list of PolicyShards.
+
+    Parameters:
+        shards: The PolicyShards to explain.
+        language: The language of the explanation
+
+    Raises:
+        NotImplementedError: When an unsupported language is requested.
+    """
+    if language != "en":
+        raise NotImplementedError(f"Language '{language}' is not supported.")
+    return [shard.explain for shard in shards]
 
 
 class PolicyShard(BaseModel):
@@ -139,13 +154,24 @@ class PolicyShard(BaseModel):
         conditions: Optional[FrozenSet[Condition]] = None,
         not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
+        """Initialize a PolicyShard object.
+
+        Parameters:
+            effect: `'Allow'` or `'Deny'`
+            effective_action: The EffectiveAction that this PolicyShard allows or denies
+            effective_resource: The EffectiveResource that this PolicyShard allows or denies
+            effective_principal: The EffectivePrincipal that this PolicyShard allows or denies
+            conditions: The conditions that must be met for this PolicyShard to take effect
+            not_conditions: The conditions that must NOT be met for this PolicyShard to take effect
+        """
+        conditions, not_conditions = EffectiveCondition.factory(conditions, not_conditions)
         super().__init__(
             effect=effect,
             effective_action=effective_action,
             effective_resource=effective_resource,
             effective_principal=effective_principal,
-            conditions=conditions or frozenset(),
-            not_conditions=not_conditions or frozenset(),
+            conditions=conditions,
+            not_conditions=not_conditions,
         )
 
     class Config:
@@ -437,10 +463,10 @@ class PolicyShard(BaseModel):
             explain_elements["arp_explain"] += f"(except principals {principal_exclusions}) "
 
         if self.conditions:
-            conditions = " and ".join([str(condition) for condition in self.conditions])
+            conditions = " and ".join(sorted([str(condition) for condition in self.conditions]))
             explain_elements["condition_explain"] = f"Provided conditions {conditions} are met"
         if self.not_conditions:
-            not_conditions = " and ".join([str(condition) for condition in self.not_conditions])
+            not_conditions = " and ".join(sorted([str(condition) for condition in self.not_conditions]))
             explain_elements["not_condition_explain"] = f"Unless conditions {not_conditions} are met"
 
         return ". ".join(element.strip() for element in explain_elements.values() if element) + "."

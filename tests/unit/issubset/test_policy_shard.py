@@ -64,7 +64,9 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            not_conditions=frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])}),
+            not_conditions=frozenset(
+                {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
+            ),
         ),
         PolicyShard(
             effect="Allow",
@@ -105,7 +107,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
                 {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
             ),
             not_conditions=frozenset(
-                {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
             ),
         ),
         PolicyShard(

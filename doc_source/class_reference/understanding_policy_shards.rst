@@ -7,7 +7,7 @@ Dedupe & Merge
 :class:`~policyglass.policy_shard.PolicyShard` objects need to go through two phases to correct their sizes.
 
 1. Dedupe using :func:`~policyglass.policy_shard.dedupe_policy_shard_subsets`
-2. Merge using :func:`~policyglass.policy_shard.delineate_intersecting_shards`
+2. Merge using :func:`~policyglass.policy_shard.dedupe_policy_shards`
 
 The first collapses all PolicyShards which are subsets of each other into each other, in other words eliminating 
 all smaller PolicyShards that can fit into bigger PolicyShards.
@@ -68,12 +68,12 @@ This means that.
 #. They do intersect because every part of ``s3:*`` apart from ``s3:PutObject`` is less restrictively allowed by Shard A
 #. We want to reduce the scope of Shard B to just ``s3:PutObject``
 
-To do this we use :func:`~policyglass.policy_shard.delineate_intersecting_shards`
+To do this we use :func:`~policyglass.policy_shard.dedupe_policy_shards`
 
 .. doctest:: 
 
-    >>> from policyglass.policy_shard import delineate_intersecting_shards
-    >>> shard_b_delineated, shard_a_delineated = delineate_intersecting_shards([shard_a, shard_b])
+    >>> from policyglass.policy_shard import dedupe_policy_shards
+    >>> shard_b_delineated, shard_a_delineated = dedupe_policy_shards([shard_a, shard_b])
     >>> assert shard_a_delineated == PolicyShard(
     ...     effect='Allow', 
     ...     effective_action=EffectiveAction(inclusion=Action('s3:*'), exclusions=frozenset({Action('s3:PutObject')})), 

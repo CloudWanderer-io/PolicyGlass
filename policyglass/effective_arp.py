@@ -185,6 +185,20 @@ class EffectiveARP(Generic[T]):
         except ValueError:
             return None
 
+    def __contains__(self, other: object) -> bool:
+        """Whether this object contains the ARP passed in.
+
+        Parameters:
+            other: The object to determine if our object contains.
+
+        Raises:
+            ValueError: If the other object is not of the same type as this object.
+        """
+        if not isinstance(other, self._arp_type):
+            raise ValueError(f"Cannot check if {self.__class__.__name__} contains a {other.__class__.__name__}")
+
+        return self.__class__(other).issubset(self)
+
     def __eq__(self, other: object) -> bool:
         """Whether this object is not equal to another object.
 

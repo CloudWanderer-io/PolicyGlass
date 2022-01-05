@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import Dict, FrozenSet, List
+from typing import Dict, FrozenSet, List, NamedTuple, Optional
 
 from pydantic import BaseModel
 
@@ -28,6 +28,59 @@ class ConditionOperator(CaseInsensitiveString):
     """
 
 
+#: A list of operators and their opposite.
+OPERATOR_REVERSAL_INDEX = {
+    ConditionOperator("StringEquals"): ConditionOperator("StringNotEquals"),
+    ConditionOperator("StringEqualsIfExists"): ConditionOperator("StringNotEqualsIfExists"),
+    ConditionOperator("StringNotEquals"): ConditionOperator("StringEquals"),
+    ConditionOperator("StringNotEqualsIfExists"): ConditionOperator("StringEqualsIfExists"),
+    ConditionOperator("StringEqualsIgnoreCase"): ConditionOperator("StringNotEqualsIgnoreCase"),
+    ConditionOperator("StringEqualsIgnoreCaseIfExists"): ConditionOperator("StringNotEqualsIgnoreCaseIfExists"),
+    ConditionOperator("StringNotEqualsIgnoreCase"): ConditionOperator("StringEqualsIgnoreCase"),
+    ConditionOperator("StringNotEqualsIgnoreCaseIfExists"): ConditionOperator("StringEqualsIgnoreCaseIfExists"),
+    ConditionOperator("StringLike"): ConditionOperator("StringNotLike"),
+    ConditionOperator("StringLikeIfExists"): ConditionOperator("StringNotLikeIfExists"),
+    ConditionOperator("StringNotLike"): ConditionOperator("StringLike"),
+    ConditionOperator("StringNotLikeIfExists"): ConditionOperator("StringLikeIfExists"),
+    ConditionOperator("NumericEquals"): ConditionOperator("NumericNotEquals"),
+    ConditionOperator("NumericEqualsIfExists"): ConditionOperator("NumericNotEqualsIfExists"),
+    ConditionOperator("NumericNotEquals"): ConditionOperator("NumericEquals"),
+    ConditionOperator("NumericNotEqualsIfExists"): ConditionOperator("NumericEqualsIfExists"),
+    ConditionOperator("NumericLessThan"): ConditionOperator("NumericGreaterThanEquals"),
+    ConditionOperator("NumericLessThanIfExists"): ConditionOperator("NumericGreaterThanEqualsIfExists"),
+    ConditionOperator("NumericGreaterThan"): ConditionOperator("NumericLessThanEquals"),
+    ConditionOperator("NumericGreaterThanIfExists"): ConditionOperator("NumericLessThanEqualsIfExists"),
+    ConditionOperator("NumericLessThanEquals"): ConditionOperator("NumericGreaterThan"),
+    ConditionOperator("NumericLessThanEqualsIfExists"): ConditionOperator("NumericGreaterThanIfExists"),
+    ConditionOperator("NumericGreaterThanEquals"): ConditionOperator("NumericLessThan"),
+    ConditionOperator("NumericGreaterThanEqualsIfExists"): ConditionOperator("NumericLessThanIfExists"),
+    ConditionOperator("DateEquals"): ConditionOperator("DateNotEquals"),
+    ConditionOperator("DateEqualsIfExists"): ConditionOperator("DateNotEqualsIfExists"),
+    ConditionOperator("DateNotEquals"): ConditionOperator("DateEquals"),
+    ConditionOperator("DateNotEqualsIfExists"): ConditionOperator("DateEqualsIfExists"),
+    ConditionOperator("DateLessThan"): ConditionOperator("DateGreaterThanEquals"),
+    ConditionOperator("DateLessThanIfExists"): ConditionOperator("DateGreaterThanEqualsIfExists"),
+    ConditionOperator("DateGreaterThan"): ConditionOperator("DateLessThanEquals"),
+    ConditionOperator("DateGreaterThanIfExists"): ConditionOperator("DateLessThanEqualsIfExists"),
+    ConditionOperator("DateLessThanEquals"): ConditionOperator("DateGreaterThan"),
+    ConditionOperator("DateLessThanEqualsIfExists"): ConditionOperator("DateGreaterThanIfExists"),
+    ConditionOperator("DateGreaterThanEquals"): ConditionOperator("DateLessThan"),
+    ConditionOperator("DateGreaterThanEqualsIfExists"): ConditionOperator("DateLessThanIfExists"),
+    ConditionOperator("IpAddress"): ConditionOperator("NotIpAddress"),
+    ConditionOperator("IpAddressIfExists"): ConditionOperator("NotIpAddressIfExists"),
+    ConditionOperator("NotIpAddress"): ConditionOperator("IpAddress"),
+    ConditionOperator("NotIpAddressIfExists"): ConditionOperator("IpAddressIfExists"),
+    ConditionOperator("ArnEquals"): ConditionOperator("ArnNotEquals"),
+    ConditionOperator("ArnEqualsIfExists"): ConditionOperator("ArnNotEqualsIfExists"),
+    ConditionOperator("ArnNotEquals"): ConditionOperator("ArnEquals"),
+    ConditionOperator("ArnNotEqualsIfExists"): ConditionOperator("ArnEqualsIfExists"),
+    ConditionOperator("ArnLike"): ConditionOperator("ArnNotLike"),
+    ConditionOperator("ArnLikeIfExists"): ConditionOperator("ArnNotLikeIfExists"),
+    ConditionOperator("ArnNotLike"): ConditionOperator("ArnLike"),
+    ConditionOperator("ArnNotLikeIfExists"): ConditionOperator("ArnLikeIfExists"),
+}
+
+
 class ConditionValue(str):
     """Condition values may or may not be case sensitive depending on the operator."""
 
@@ -45,6 +98,17 @@ class Condition(BaseModel):
             operator=ConditionOperator(operator),
             values=[ConditionValue(value) for value in values],
         )
+
+    @property
+    def reverse(self) -> "Condition":
+        """Return a new condition which is the opposite of this condition.
+
+        Raises:
+            ValueError: If the operator is a type that cannot be reversed.
+        """
+        if self.operator in OPERATOR_REVERSAL_INDEX:
+            return self.__class__(key=self.key, operator=OPERATOR_REVERSAL_INDEX[self.operator], values=self.values)
+        raise ValueError(f"Cannot reverse conditions with operator {self.operator}")
 
     @classmethod
     def factory(cls, condition_collection: "RawConditionCollection") -> "FrozenSet[Condition]":
@@ -86,6 +150,35 @@ class Condition(BaseModel):
     def __str__(self) -> str:
         """Return a string representation of this object."""
         return f"{self.key} {self.operator} {self.values}"
+
+
+class EffectiveCondition(NamedTuple):
+    """A pair of sets for inclusions and exclusion conditions."""
+
+    #: Conditions which must be met
+    inclusions: FrozenSet[Condition]
+    #: Conditions which must NOT be met
+    exclusions: FrozenSet[Condition]
+
+    @classmethod
+    def factory(
+        cls, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
+    ) -> "EffectiveCondition":
+        """Convert ``not_conditions`` to ``conditions`` if possible.
+
+        Parameters:
+            inclusions: The conditions that must be met.
+            exclusions: The conditions that must NOT be met.
+        """
+        normalised_inclusions = set(inclusions or {})
+        normalised_exclusions = set()
+
+        for not_condition in exclusions or {}:
+            try:
+                normalised_inclusions.add(not_condition.reverse)
+            except ValueError:
+                normalised_exclusions.add(not_condition)
+        return EffectiveCondition(frozenset(normalised_inclusions), frozenset(normalised_exclusions))
 
 
 class RawConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):

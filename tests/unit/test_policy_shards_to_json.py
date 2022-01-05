@@ -29,7 +29,7 @@ def test_policy_shards_to_json():
             ),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            not_conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+            not_conditions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
         ),
     ]
 
@@ -85,10 +85,10 @@ def test_policy_shards_to_json():
     },
     "not_conditions": [
       {
-        "key": "s3:x-amz-server-side-encryption",
-        "operator": "StringNotEquals",
+        "key": "key",
+        "operator": "BinaryEquals",
         "values": [
-          "AES256"
+          "QmluYXJ5VmFsdWVJbkJhc2U2NA=="
         ]
       }
     ]

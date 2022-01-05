@@ -11,7 +11,8 @@
    :hidden:
 
    what_is_policyglass
-   examples
+   examples_policy_shards
+   examples_policy_analysis
    class_reference
 
 .. include:: ../README.rst
