@@ -31,11 +31,11 @@ PolicyGlass will **always** result in only allow ``PolicyShard`` objects, no mat
 Try it out
 """"""""""""
 
-.. image:: https://user-images.githubusercontent.com/803607/148303351-0bb5f13a-275e-440d-90dd-74394ca14144.png
+.. image:: https://github.com/CloudWanderer-io/PolicyGlass/blob/dbc313d065247b557e36bfb8dc7ece2684a9cc81/doc_source/images/policyglass-sandbox.gif?raw=true
    :alt: PolicyGlass Sandbox screenshot
    :target: https://sandbox.policyglass.cloudwanderer.io
 
-Visit `https://sandbox.policyglass.cloudwanderer.io<https://sandbox.policyglass.cloudwanderer.io>`__
+Try out custom policies quickly without installing anything with the `PolicyGlass Sandbox <https://sandbox.policyglass.cloudwanderer.io>`__.
 
 Installation 
 """""""""""""""
