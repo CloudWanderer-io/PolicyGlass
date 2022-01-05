@@ -28,6 +28,14 @@ PolicyGlass allows you to combine multiple AWS IAM policies/statements into thei
 
 PolicyGlass will **always** result in only allow ``PolicyShard`` objects, no matter how complex the policy. This makes understanding the effect of your policies programmatically a breeze.
 
+Try it out
+""""""""""""
+
+.. image:: https://user-images.githubusercontent.com/803607/148303351-0bb5f13a-275e-440d-90dd-74394ca14144.png
+   :alt: PolicyGlass Sandbox screenshot
+   :target: https://sandbox.policyglass.cloudwanderer.io
+
+Visit `https://sandbox.policyglass.cloudwanderer.io<https://sandbox.policyglass.cloudwanderer.io>`__
 
 Installation 
 """""""""""""""
