@@ -35,7 +35,7 @@ def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: 
     return deduped_shards
 
 
-def delineate_intersecting_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
+def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = True) -> List["PolicyShard"]:
     """Dedupe policy shards that are subsets of each other and remove intersections.
 
     Parameters:
@@ -80,9 +80,9 @@ def delineate_intersecting_shards(shards: Iterable["PolicyShard"], check_reverse
 
     deduped_shards = deduped_shards + difference_shards
     if check_reverse:
-        deduped_shards = delineate_intersecting_shards(reversed(deduped_shards), False)
+        deduped_shards = dedupe_policy_shards(reversed(deduped_shards), False)
     if removed_shards or difference_shards:
-        deduped_shards = delineate_intersecting_shards(deduped_shards)
+        deduped_shards = dedupe_policy_shards(deduped_shards)
     return deduped_shards
 
 
@@ -106,7 +106,7 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
             allow_candidates = result
         if allow_candidates:
             merged_allow_shards.extend(allow_candidates)
-    return merged_allow_shards
+    return dedupe_policy_shards(merged_allow_shards)
 
 
 def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, **kwargs) -> str:

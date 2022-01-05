@@ -1,3 +1,6 @@
+# 0.6.0
+
+- Renamed `delineate_intersecting_shards` to `dedupe_policy_shards` to better reflect how people will use it.
 # 0.5.0
 
 - Renamed `dedupe_policy_shards` to `dedupe_policy_shard_subsets` to differentiate it from `delineate_intersecting_shards`.

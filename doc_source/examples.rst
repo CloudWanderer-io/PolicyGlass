@@ -16,7 +16,7 @@ Simple
 
 .. doctest:: 
 
-   >>> from policyglass import Policy, delineate_intersecting_shards, policy_shards_effect, policy_shards_to_json
+   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_effect, policy_shards_to_json
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
@@ -74,7 +74,7 @@ De-duplicate
 
 .. doctest:: 
 
-   >>> from policyglass import Policy, delineate_intersecting_shards, policy_shards_to_json
+   >>> from policyglass import Policy, dedupe_policy_shards, policy_shards_to_json
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
@@ -99,7 +99,7 @@ De-duplicate
    ...         }
    ...     ]
    ... })
-   >>> policy_shards = delineate_intersecting_shards([*policy_a.policy_shards, *policy_b.policy_shards])
+   >>> policy_shards = dedupe_policy_shards([*policy_a.policy_shards, *policy_b.policy_shards])
    >>> print(policy_shards_to_json(policy_shards, exclude_defaults=True, indent=2))
    [
       {
@@ -128,7 +128,7 @@ Deny Not Resource Policy
 --------------------------
 .. doctest:: 
 
-   >>> from policyglass import Policy, delineate_intersecting_shards, policy_shards_effect, policy_shards_to_json
+   >>> from policyglass import Policy, policy_shards_effect, policy_shards_to_json
    >>> policy_a = Policy(**{
    ...     "Version": "2012-10-17",
    ...     "Statement": [
@@ -154,7 +154,7 @@ Deny Not Resource Policy
    ...         }
    ...     ]
    ... })
-   >>> shards_effect = delineate_intersecting_shards(policy_shards_effect(policy_a.policy_shards))
+   >>> shards_effect = policy_shards_effect(policy_a.policy_shards)
    >>> print(policy_shards_to_json(shards_effect, exclude_defaults=True, indent=2))
    [
       {
