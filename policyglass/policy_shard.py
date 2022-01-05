@@ -463,10 +463,10 @@ class PolicyShard(BaseModel):
             explain_elements["arp_explain"] += f"(except principals {principal_exclusions}) "
 
         if self.conditions:
-            conditions = " and ".join([str(condition) for condition in self.conditions])
+            conditions = " and ".join(sorted([str(condition) for condition in self.conditions]))
             explain_elements["condition_explain"] = f"Provided conditions {conditions} are met"
         if self.not_conditions:
-            not_conditions = " and ".join([str(condition) for condition in self.not_conditions])
+            not_conditions = " and ".join(sorted([str(condition) for condition in self.not_conditions]))
             explain_elements["not_condition_explain"] = f"Unless conditions {not_conditions} are met"
 
         return ". ".join(element.strip() for element in explain_elements.values() if element) + "."

@@ -1,5 +1,5 @@
-Examples
-============
+Examples of PolicyShards
+==========================
 
 Below you can find some examples on how PolicyGlass can be used to understand complex policies in a consistent way.
 
@@ -187,10 +187,10 @@ Deny Not Resource Policy
             "value": "*"
           }
         },
-        "not_conditions": [
+        "conditions": [
           {
             "key": "s3:x-amz-server-side-encryption",
-            "operator": "StringNotEquals",
+            "operator": "StringEquals",
             "values": [
               "AES256"
             ]
@@ -209,9 +209,9 @@ PolicyShard #1 (first dictionary in list) tells us:
 PolicyShard #2 (second dictionary in list) tells us:
    #. Allow ``s3:*`` 
    #. On all resources
-   #. *except* If the condition applies.
+   #. If the condition applies.
 
 What occurred:
    #. ``s3:GetObject`` was removed from the allow because it was totally within ``s3:*``
    #. A new ``PolicyShard`` was created with ``s3:*``
-   #. The deny's ``condition`` became a ``not_condition`` on the new ``PolicyShard``.
+   #. The deny's ``condition`` got reversed from ``StringNotEquals`` to ``StringEquals`` and added to the new allow ``PolicyShard``.

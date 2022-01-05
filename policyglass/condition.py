@@ -28,6 +28,7 @@ class ConditionOperator(CaseInsensitiveString):
     """
 
 
+#: A list of operators and their opposite.
 OPERATOR_REVERSAL_INDEX = {
     ConditionOperator("StringEquals"): ConditionOperator("StringNotEquals"),
     ConditionOperator("StringEqualsIfExists"): ConditionOperator("StringNotEqualsIfExists"),
