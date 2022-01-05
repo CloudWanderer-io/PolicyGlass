@@ -120,6 +120,21 @@ def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, *
     return json.dumps([json.loads(shard.json(exclude_defaults=exclude_defaults)) for shard in shards], **kwargs)
 
 
+def explain_policy_shards(shards: List["PolicyShard"], language: str = "en") -> List[str]:
+    """Return a list of string explanations for a given list of PolicyShards.
+
+    Parameters:
+        shards: The PolicyShards to explain.
+        language: The language of the explanation
+
+    Raises:
+        NotImplementedError: When an unsupported language is requested.
+    """
+    if language != "en":
+        raise NotImplementedError(f"Language '{language}' is not supported.")
+    return [shard.explain for shard in shards]
+
+
 class PolicyShard(BaseModel):
     """A PolicyShard is part of a policy broken down in such a way that it can be deduplicated and collapsed."""
 
