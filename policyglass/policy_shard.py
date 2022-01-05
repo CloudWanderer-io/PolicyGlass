@@ -154,6 +154,16 @@ class PolicyShard(BaseModel):
         conditions: Optional[FrozenSet[Condition]] = None,
         not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
+        """Initialize a PolicyShard object.
+
+        Parameters:
+            effect: `'Allow'` or `'Deny'`
+            effective_action: The EffectiveAction that this PolicyShard allows or denies
+            effective_resource: The EffectiveResource that this PolicyShard allows or denies
+            effective_principal: The EffectivePrincipal that this PolicyShard allows or denies
+            conditions: The conditions that must be met for this PolicyShard to take effect
+            not_conditions: The conditions that must NOT be met for this PolicyShard to take effect
+        """
         super().__init__(
             effect=effect,
             effective_action=effective_action,
@@ -399,6 +409,44 @@ class PolicyShard(BaseModel):
             and self.effective_resource.issubset(other.effective_resource)
             and self.effective_principal.issubset(other.effective_principal)
             and self.effect == other.effect
+        )
+
+    @classmethod
+    def factory(
+        cls,
+        effect: str,
+        effective_action: EffectiveARP[Action],
+        effective_resource: EffectiveARP[Resource],
+        effective_principal: EffectiveARP[Principal],
+        conditions: Optional[FrozenSet[Condition]] = None,
+        not_conditions: Optional[FrozenSet[Condition]] = None,
+    ) -> "PolicyShard":
+        """Create a normalised PolicyShard.
+
+        This method converts ``not_conditions`` to ``conditions`` if possible.
+
+        Parameters:
+            effect: `'Allow'` or `'Deny'`
+            effective_action: The EffectiveAction that this PolicyShard allows or denies
+            effective_resource: The EffectiveResource that this PolicyShard allows or denies
+            effective_principal: The EffectivePrincipal that this PolicyShard allows or denies
+            conditions: The conditions that must be met for this PolicyShard to take effect
+            not_conditions: The conditions that must NOT be met for this PolicyShard to take effect
+        """
+        new_not_conditions = set()
+        new_conditions = set(conditions or {})
+        for not_condition in not_conditions or {}:
+            try:
+                new_conditions.add(not_condition.reverse)
+            except ValueError:
+                new_not_conditions.add(not_condition)
+        return cls(
+            effect=effect,
+            effective_action=effective_action,
+            effective_resource=effective_resource,
+            effective_principal=effective_principal,
+            conditions=frozenset(new_conditions),
+            not_conditions=frozenset(new_not_conditions),
         )
 
     def dict(self, *args, **kwargs) -> Dict[str, Any]:
