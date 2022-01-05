@@ -126,3 +126,9 @@ def test_condition_not_reversible(_, scenario):
     with pytest.raises(ValueError) as ex:
         input.reverse
     assert f"Cannot reverse conditions with operator {input.operator}" in str(ex.value)
+
+
+def test_condition_reversal_not_case_sensitive():
+    assert Condition("TestKey", "STRINGEQUALS", ["TestValue"]).reverse == Condition(
+        "TestKey", "stringnotequals", ["TestValue"]
+    )

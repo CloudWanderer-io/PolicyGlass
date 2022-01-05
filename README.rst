@@ -71,7 +71,8 @@ Let's take two policies, *a* and *b* and pit them against each other.
    ...     ]
    ... })
    >>> policy_shards = [*policy_a.policy_shards, *policy_b.policy_shards]
-   >>> print(policy_shards_effect(policy_shards))
+   >>> effect = policy_shards_effect(policy_shards)
+   >>> effect
    [PolicyShard(effect='Allow', 
       effective_action=EffectiveAction(inclusion=Action('s3:*'), 
          exclusions=frozenset()), 
@@ -84,3 +85,11 @@ Let's take two policies, *a* and *b* and pit them against each other.
 
 Two policies, two statements, resulting in a single allow ``PolicyShard``.
 More complex policies will result in multiple shards, but they will always be **allows**, no matter how complex the policy.
+
+You can also make them human readable!
+
+.. doctest:: 
+
+   >>> from policyglass import explain_policy_shards
+   >>> explain_policy_shards(effect)
+   ['Allow action s3:* on resource * (except for arn:aws:s3:::examplebucket/*) with principal AWS *.']
