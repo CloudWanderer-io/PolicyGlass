@@ -98,9 +98,9 @@ We can do this with a list comprehension and utilise the ``in`` operator to chec
         effective_action=EffectiveAction(inclusion=Action('s3:PutObject'), exclusions=frozenset()), 
         effective_resource=EffectiveResource(inclusion=Resource('*'), exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
         effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), exclusions=frozenset()), 
-        conditions=frozenset({Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256']), 
-            Condition(key='s3:TlsVersion', operator='NumericLessThan', values=['1.2'])}), 
-        not_conditions=frozenset())]
+        effective_condition=EffectiveCondition(inclusions=frozenset({Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256']), 
+                Condition(key='s3:TlsVersion', operator='NumericLessThan', values=['1.2'])}), 
+            exclusions=frozenset()))]
 
 .. doctest::
     :hide:
@@ -111,15 +111,16 @@ We can do this with a list comprehension and utilise the ``in`` operator to chec
     ...     EffectiveAction,
     ...     EffectiveResource,
     ...     EffectivePrincipal,
+    ...     EffectiveCondition,
     ...     Condition
     ... )
     >>> assert result == [PolicyShard(effect='Allow', 
-    ... effective_action=EffectiveAction(inclusion=Action('s3:PutObject'), exclusions=frozenset()), 
-    ... effective_resource=EffectiveResource(inclusion=Resource('*'), exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
-    ... effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), exclusions=frozenset()), 
-    ... conditions=frozenset({Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256']), 
-    ...     Condition(key='s3:TlsVersion', operator='NumericLessThan', values=['1.2'])}), 
-    ... not_conditions=frozenset())]
+    ...     effective_action=EffectiveAction(inclusion=Action('s3:PutObject'), exclusions=frozenset()), 
+    ...     effective_resource=EffectiveResource(inclusion=Resource('*'), exclusions=frozenset({Resource('arn:aws:s3:::examplebucket/*')})), 
+    ...     effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'), exclusions=frozenset()), 
+    ...     effective_condition=EffectiveCondition(inclusions=frozenset({Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256']), 
+    ...             Condition(key='s3:TlsVersion', operator='NumericLessThan', values=['1.2'])}), 
+    ...         exclusions=frozenset()))]
 
 From this check we can see that it is allowed by at least one shard! **But** there are two conditions.
 
@@ -130,12 +131,5 @@ Either way it's trivial to check if a condition exists or not.
 
 .. doctest::
 
-    >>> bool(result[0].conditions)
+    >>> bool(result[0].effective_condition)
     True
-    >>> bool(result[0].not_conditions)
-    False
-    
-.. tip::
-
-    You'll find that ``not_conditions`` are quite rare, as most condition operators can be flipped into ``conditions``.
-    Check the :attr:`~policyglass.condition.OPERATOR_REVERSAL_INDEX` for a full list of operators that can be converted.

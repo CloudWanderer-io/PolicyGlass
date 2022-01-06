@@ -8,7 +8,7 @@ from policyglass import (
     Resource,
     Statement,
 )
-from policyglass.condition import Condition
+from policyglass.condition import Condition, EffectiveCondition
 
 
 def test_policy_shards():
@@ -20,7 +20,6 @@ def test_policy_shards():
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            conditions=frozenset(),
         )
     ]
 
@@ -45,8 +44,10 @@ def test_policy_shards_not_resource_condition():
                 inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
             ),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            conditions=frozenset(
-                {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+            effective_condition=EffectiveCondition(
+                frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                )
             ),
         )
     ]

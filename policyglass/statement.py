@@ -5,7 +5,14 @@ from typing import Dict, FrozenSet, List, Optional, Tuple, TypeVar, Union
 from pydantic import BaseModel, validator
 
 from .action import Action, EffectiveAction
-from .condition import Condition, ConditionKey, ConditionOperator, ConditionValue, RawConditionCollection
+from .condition import (
+    Condition,
+    ConditionKey,
+    ConditionOperator,
+    ConditionValue,
+    EffectiveCondition,
+    RawConditionCollection,
+)
 from .policy_shard import PolicyShard
 from .principal import EffectivePrincipal, Principal, PrincipalCollection, PrincipalType, PrincipalValue
 from .resource import EffectiveResource, Resource
@@ -73,7 +80,7 @@ class Statement(BaseModel):
                         exclusions=frozenset(self.not_resource or {}),
                     ),
                     effective_principal=EffectivePrincipal(principal, exclusions=not_principals),
-                    conditions=conditions,
+                    effective_condition=EffectiveCondition(conditions),
                 )
             )
         return result

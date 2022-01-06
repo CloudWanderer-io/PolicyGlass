@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import Dict, FrozenSet, List, NamedTuple, Optional
+from typing import Any, Dict, FrozenSet, Iterator, List, Optional, Tuple
 
 from pydantic import BaseModel
 
@@ -152,7 +152,7 @@ class Condition(BaseModel):
         return f"{self.key} {self.operator} {self.values}"
 
 
-class EffectiveCondition(NamedTuple):
+class EffectiveCondition(BaseModel):
     """A pair of sets for inclusions and exclusion conditions."""
 
     #: Conditions which must be met
@@ -160,11 +160,14 @@ class EffectiveCondition(NamedTuple):
     #: Conditions which must NOT be met
     exclusions: FrozenSet[Condition]
 
-    @classmethod
-    def factory(
-        cls, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
-    ) -> "EffectiveCondition":
-        """Convert ``not_conditions`` to ``conditions`` if possible.
+    def __init__(
+        self, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
+    ) -> None:
+        """Convert ``exclusions`` to ``inclusions`` if possible.
+
+        The only type of Condition that really exists in AWS policies is the ``inclusions``. The ``exclusions`` are
+        created only when conditions on a ``Deny`` statement have operators that cannot be reversed. The reversal is
+        required in order to fold a Deny condition into an Allow condition.
 
         Parameters:
             inclusions: The conditions that must be met.
@@ -173,12 +176,62 @@ class EffectiveCondition(NamedTuple):
         normalised_inclusions = set(inclusions or {})
         normalised_exclusions = set()
 
-        for not_condition in exclusions or {}:
+        for exclusion in exclusions or {}:
             try:
-                normalised_inclusions.add(not_condition.reverse)
+                normalised_inclusions.add(exclusion.reverse)
             except ValueError:
-                normalised_exclusions.add(not_condition)
-        return EffectiveCondition(frozenset(normalised_inclusions), frozenset(normalised_exclusions))
+                normalised_exclusions.add(exclusion)
+        super().__init__(inclusions=frozenset(normalised_inclusions), exclusions=frozenset(normalised_exclusions))
+
+    def intersection(self, other: object) -> "EffectiveCondition":
+        """Calculate the intersection between this object and another object of the same type.
+
+        Parameters:
+            other: The object to intersect with this one.
+
+        Raises:
+            ValueError: if ``other`` is not the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
+
+        return self.__class__(
+            inclusions=self.inclusions.intersection(other.inclusions),
+            exclusions=self.exclusions.intersection(other.exclusions),
+        )
+
+    def dict(self, *args, **kwargs) -> Dict[str, Any]:
+        """Convert instance to dict representation of it.
+
+        Parameters:
+            *args: Arguments to Pydantic dict method.
+            **kwargs: Arguments to Pydantic dict method.
+
+        Overridden from BaseModel so that when converting conditions to dict they don't suffer from being unhashable
+        when placed in a set.
+        """
+        result = {}
+        for key, value in self:
+            if not kwargs.get("exclude_defaults") or value != frozenset():
+                result[key] = value
+
+        return result
+
+    def _iter(self, *args, **kwargs) -> Iterator[Tuple[str, Any]]:  # type: ignore[override]
+        for key, value in self.dict(*args, **kwargs).items():
+            yield key, value
+
+    def __bool__(self) -> bool:
+        """Return True if this object contains any values."""
+        return bool(self.inclusions) or bool(self.exclusions)
+
+    def __repr__(self) -> str:
+        """Return an instantiable representation of this object."""
+        return f"{self.__class__.__name__}(inclusions={self.inclusions}, exclusions={self.exclusions})"
+
+    def __str__(self) -> str:
+        """Return a string representation of this object."""
+        return repr(self)
 
 
 class RawConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):

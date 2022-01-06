@@ -11,6 +11,7 @@ from policyglass import (
     Principal,
     Resource,
 )
+from policyglass.condition import EffectiveCondition
 
 POLICIES = {
     "simple_iam_policy": {
@@ -34,7 +35,6 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             )
         ],
     },
@@ -60,14 +60,16 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {
-                        Condition(
-                            key="ec2:SourceInstanceARN",
-                            operator="ArnEquals",
-                            values=["arn:aws:ec2:*:*:instance/instance-id"],
-                        )
-                    }
+                effective_condition=EffectiveCondition(
+                    frozenset(
+                        {
+                            Condition(
+                                key="ec2:SourceInstanceARN",
+                                operator="ArnEquals",
+                                values=["arn:aws:ec2:*:*:instance/instance-id"],
+                            )
+                        }
+                    )
                 ),
             )
         ],
@@ -95,7 +97,9 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::111122223333:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
+                effective_condition=EffectiveCondition(
+                    frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
+                ),
             ),
             PolicyShard(
                 effect="Allow",
@@ -106,7 +110,9 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::444455556666:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
+                effective_condition=EffectiveCondition(
+                    frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
+                ),
             ),
             PolicyShard(
                 effect="Allow",
@@ -117,7 +123,9 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::111122223333:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
+                effective_condition=EffectiveCondition(
+                    frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
+                ),
             ),
             PolicyShard(
                 effect="Allow",
@@ -128,7 +136,9 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::444455556666:root"), exclusions=frozenset()
                 ),
-                conditions=frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])}),
+                effective_condition=EffectiveCondition(
+                    frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
+                ),
             ),
         ],
     },

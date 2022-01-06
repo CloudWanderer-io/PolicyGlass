@@ -10,6 +10,7 @@ from policyglass import (
     Principal,
     Resource,
 )
+from policyglass.condition import EffectiveCondition
 
 
 def test_json():
@@ -18,7 +19,7 @@ def test_json():
         effective_action=EffectiveAction(inclusion=Action("s3:*")),
         effective_resource=EffectiveResource(inclusion=Resource("*")),
         effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
-        conditions=frozenset([Condition("Key", "Operator", ["Value"])]),
+        effective_condition=EffectiveCondition(frozenset([Condition("Key", "Operator", ["Value"])])),
     )
 
     assert subject.json() == json.dumps(
@@ -29,7 +30,9 @@ def test_json():
                 "inclusion": {"type": "AWS", "value": "arn:aws:iam::123456789012:root"},
                 "exclusions": [],
             },
-            "conditions": [{"key": "Key", "operator": "Operator", "values": ["Value"]}],
-            "not_conditions": [],
+            "effective_condition": {
+                "inclusions": [{"key": "Key", "operator": "Operator", "values": ["Value"]}],
+                "exclusions": [],
+            },
         }
     )

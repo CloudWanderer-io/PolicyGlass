@@ -187,15 +187,17 @@ Deny Not Resource Policy
             "value": "*"
           }
         },
-        "conditions": [
-          {
-            "key": "s3:x-amz-server-side-encryption",
-            "operator": "StringEquals",
-            "values": [
-              "AES256"
-            ]
-          }
-        ]
+        "effective_condition": {
+          "inclusions": [
+            {
+              "key": "s3:x-amz-server-side-encryption",
+              "operator": "StringEquals",
+              "values": [
+                "AES256"
+              ]
+            }
+          ]
+        }
       }
     ]
    
