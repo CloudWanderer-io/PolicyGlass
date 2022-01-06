@@ -2,7 +2,7 @@ import pytest
 
 from policyglass import Policy, PolicyShard
 from policyglass.action import Action, EffectiveAction
-from policyglass.condition import Condition
+from policyglass.condition import Condition, EffectiveCondition
 from policyglass.policy_shard import policy_shards_effect
 from policyglass.principal import EffectivePrincipal, Principal
 from policyglass.resource import EffectiveResource, Resource
@@ -17,7 +17,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Deny",
@@ -26,7 +25,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
         ],
         "expected": [],
@@ -40,7 +38,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Deny",
@@ -49,7 +46,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
         ],
         "expected": [
@@ -60,7 +56,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             )
         ],
     },
@@ -73,7 +68,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Deny",
@@ -82,7 +76,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Deny",
@@ -91,7 +84,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             ),
         ],
         "expected": [
@@ -104,7 +96,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
             )
         ],
     },
@@ -119,8 +110,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
-                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Deny",
@@ -131,10 +120,15 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                effective_condition=EffectiveCondition.factory(
+                    frozenset(
+                        {
+                            Condition(
+                                key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"]
+                            )
+                        }
+                    )
                 ),
-                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Allow",
@@ -143,10 +137,9 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                effective_condition=EffectiveCondition.factory(
+                    frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
                 ),
-                not_conditions=frozenset(),
             ),
         ],
         "expected": [
@@ -159,13 +152,16 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {
-                        Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
-                        Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]),
-                    }
+                effective_condition=EffectiveCondition.factory(
+                    frozenset(
+                        {
+                            Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
+                            Condition(
+                                key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]
+                            ),
+                        }
+                    )
                 ),
-                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Allow",
@@ -178,10 +174,9 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                effective_condition=EffectiveCondition.factory(
+                    frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
                 ),
-                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Allow",
@@ -192,8 +187,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
-                not_conditions=frozenset(),
             ),
         ],
     },
@@ -206,10 +199,9 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                effective_condition=EffectiveCondition.factory(
+                    frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
                 ),
-                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Deny",
@@ -218,10 +210,15 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                effective_condition=EffectiveCondition.factory(
+                    frozenset(
+                        {
+                            Condition(
+                                key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"]
+                            )
+                        }
+                    )
                 ),
-                not_conditions=frozenset(),
             ),
         ],
         "expected": [
@@ -232,11 +229,17 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
-                ),
-                not_conditions=frozenset(
-                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                effective_condition=EffectiveCondition.factory(
+                    inclusions=frozenset(
+                        {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    ),
+                    exclusions=frozenset(
+                        {
+                            Condition(
+                                key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"]
+                            )
+                        }
+                    ),
                 ),
             ),
         ],
@@ -272,11 +275,17 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
-                ),
-                not_conditions=frozenset(
-                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                effective_condition=EffectiveCondition.factory(
+                    inclusions=frozenset(
+                        {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    ),
+                    exclusions=frozenset(
+                        {
+                            Condition(
+                                key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"]
+                            )
+                        }
+                    ),
                 ),
             ),
             PolicyShard(
@@ -288,10 +297,11 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(
-                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                effective_condition=EffectiveCondition.factory(
+                    inclusions=frozenset(
+                        {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    )
                 ),
-                not_conditions=frozenset(),
             ),
             PolicyShard(
                 effect="Allow",
@@ -302,8 +312,6 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                conditions=frozenset(),
-                not_conditions=frozenset(),
             ),
         ],
     },

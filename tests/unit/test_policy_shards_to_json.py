@@ -1,6 +1,6 @@
 from policyglass import PolicyShard
 from policyglass.action import Action, EffectiveAction
-from policyglass.condition import Condition
+from policyglass.condition import Condition, EffectiveCondition
 from policyglass.policy_shard import policy_shards_to_json
 from policyglass.principal import EffectivePrincipal, Principal
 from policyglass.resource import EffectiveResource, Resource
@@ -13,14 +13,12 @@ def test_policy_shards_to_json():
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:Get*")})),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            conditions=frozenset(),
         ),
         PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:GetObject"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            conditions=frozenset(),
         ),
         PolicyShard(
             effect="Allow",
@@ -29,7 +27,9 @@ def test_policy_shards_to_json():
             ),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            not_conditions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
+            effective_condition=EffectiveCondition.factory(
+                exclusions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])})
+            ),
         ),
     ]
 

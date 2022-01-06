@@ -1,12 +1,12 @@
 """PolicyShards are a simplified representation of policies."""
 
 import json
-from typing import Any, DefaultDict, Dict, FrozenSet, Iterable, Iterator, List, Optional, Tuple
+from typing import Any, DefaultDict, Dict, Iterable, Iterator, List, Optional, Tuple
 
 from pydantic import BaseModel
 
 from .action import Action, EffectiveAction
-from .condition import Condition, EffectiveCondition
+from .condition import EffectiveCondition
 from .effective_arp import EffectiveARP
 from .principal import EffectivePrincipal, Principal
 from .resource import EffectiveResource, Resource
@@ -151,8 +151,6 @@ class PolicyShard(BaseModel):
         effective_resource: EffectiveARP[Resource],
         effective_principal: EffectiveARP[Principal],
         effective_condition: EffectiveCondition = None,
-        conditions: Optional[FrozenSet[Condition]] = None,
-        not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
         """Initialize a PolicyShard object.
 
@@ -162,11 +160,7 @@ class PolicyShard(BaseModel):
             effective_resource: The EffectiveResource that this PolicyShard allows or denies
             effective_principal: The EffectivePrincipal that this PolicyShard allows or denies
             effective_condition: The EffectiveCondition that needs to be met for this PolicyShard to apply
-            conditions: The conditions that must be met for this PolicyShard to take effect
-            not_conditions: The conditions that must NOT be met for this PolicyShard to take effect
         """
-        if conditions or not_conditions:
-            effective_condition = EffectiveCondition.factory(conditions, not_conditions)
         super().__init__(
             effect=effect,
             effective_action=effective_action,
@@ -210,7 +204,7 @@ class PolicyShard(BaseModel):
                 effective_action=effective_action,
                 effective_resource=effective_resource,
                 effective_principal=effective_principal,
-                conditions=self.effective_condition.inclusions,
+                effective_condition=self.effective_condition,
             )
             for effective_action in self.effective_action.union(other.effective_action)
             for effective_resource in self.effective_resource.union(other.effective_resource)
@@ -263,8 +257,10 @@ class PolicyShard(BaseModel):
                     effective_action=self.effective_action,
                     effective_resource=self.effective_resource,
                     effective_principal=self.effective_principal,
-                    conditions=self.effective_condition.inclusions,
-                    not_conditions=not_conditions,
+                    effective_condition=EffectiveCondition.factory(
+                        inclusions=self.effective_condition.inclusions,
+                        exclusions=not_conditions,
+                    ),
                 )
             )
         if dedupe_result:
@@ -298,8 +294,7 @@ class PolicyShard(BaseModel):
                         effective_action=difference_action,
                         effective_resource=resource,
                         effective_principal=principal,
-                        conditions=self.effective_condition.inclusions,
-                        not_conditions=self.effective_condition.exclusions,
+                        effective_condition=self.effective_condition,
                     )
                     for difference_action in difference_actions
                 ]
@@ -311,8 +306,7 @@ class PolicyShard(BaseModel):
                         effective_action=action,
                         effective_resource=difference_resource,
                         effective_principal=principal,
-                        conditions=self.effective_condition.inclusions,
-                        not_conditions=self.effective_condition.exclusions,
+                        effective_condition=self.effective_condition,
                     )
                     for difference_resource in difference_resources
                 ]
@@ -324,8 +318,7 @@ class PolicyShard(BaseModel):
                         effective_action=action,
                         effective_resource=resource,
                         effective_principal=difference_principal,
-                        conditions=self.effective_condition.inclusions,
-                        not_conditions=self.effective_condition.exclusions,
+                        effective_condition=self.effective_condition,
                     )
                     for difference_principal in difference_principals
                 ]
@@ -384,8 +377,9 @@ class PolicyShard(BaseModel):
             effective_action=intersection_action,
             effective_resource=intersection_resource,
             effective_principal=intersection_principal,
-            conditions=intersection_conditions,
-            not_conditions=intersection_not_conditions,
+            effective_condition=EffectiveCondition.factory(
+                inclusions=intersection_conditions, exclusions=intersection_not_conditions
+            ),
         )
 
     def issubset(self, other: object) -> bool:

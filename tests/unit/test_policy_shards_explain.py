@@ -2,7 +2,7 @@ import pytest
 
 from policyglass import PolicyShard, explain_policy_shards
 from policyglass.action import Action, EffectiveAction
-from policyglass.condition import Condition
+from policyglass.condition import Condition, EffectiveCondition
 from policyglass.principal import EffectivePrincipal, Principal
 from policyglass.resource import EffectiveResource, Resource
 
@@ -18,8 +18,10 @@ def test_policy_shard_explain_attribute():
             inclusion=Principal(type="AWS", value="*"),
             exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/role-name")}),
         ),
-        conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
-        not_conditions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
+        effective_condition=EffectiveCondition.factory(
+            inclusions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+            exclusions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
+        ),
     )
 
     assert (
@@ -42,8 +44,10 @@ def test_explain_policy_shards_function():
             inclusion=Principal(type="AWS", value="*"),
             exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/role-name")}),
         ),
-        conditions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
-        not_conditions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
+        effective_condition=EffectiveCondition.factory(
+            inclusions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
+            exclusions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
+        ),
     )
 
     assert explain_policy_shards([shard]) == [
