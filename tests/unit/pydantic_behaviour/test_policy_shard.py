@@ -29,7 +29,9 @@ def test_json():
                 "inclusion": {"type": "AWS", "value": "arn:aws:iam::123456789012:root"},
                 "exclusions": [],
             },
-            "conditions": [{"key": "Key", "operator": "Operator", "values": ["Value"]}],
-            "not_conditions": [],
+            "effective_condition": {
+                "inclusions": [{"key": "Key", "operator": "Operator", "values": ["Value"]}],
+                "exclusions": [],
+            },
         }
     )

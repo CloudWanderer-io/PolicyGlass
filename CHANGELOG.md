@@ -1,6 +1,7 @@
 # 0.7.0
 
 - Added `__bool__` and `intersection` to `EffectiveCondition`
+- Replaced `conditions` and `not_conditions` on `PolicyShard` with `effective_condition`
 
 # 0.6.0
 

@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import Dict, FrozenSet, List, NamedTuple, Optional
+from typing import Any, Dict, FrozenSet, List, NamedTuple, Optional
 
 from pydantic import BaseModel
 
@@ -196,6 +196,23 @@ class EffectiveCondition(NamedTuple):
             inclusions=self.inclusions.intersection(other.inclusions),
             exclusions=self.exclusions.intersection(other.exclusions),
         )
+
+    def dict(self, *args, **kwargs) -> Dict[str, Any]:
+        """Convert instance to dict representation of it.
+
+        Parameters:
+            *args: Arguments to Pydantic dict method.
+            **kwargs: Arguments to Pydantic dict method.
+
+        Overridden from BaseModel so that when converting conditions to dict they don't suffer from being unhashable
+        when placed in a set.
+        """
+        result = {}
+        for key, value in self._asdict().items():
+            if not kwargs.get("exclude_defaults") or value != frozenset():
+                result[key] = value
+
+        return result
 
     def __bool__(self) -> bool:
         """Return True if this object contains any values."""

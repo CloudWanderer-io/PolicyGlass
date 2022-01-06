@@ -83,15 +83,17 @@ def test_policy_shards_to_json():
         "value": "*"
       }
     },
-    "not_conditions": [
-      {
-        "key": "key",
-        "operator": "BinaryEquals",
-        "values": [
-          "QmluYXJ5VmFsdWVJbkJhc2U2NA=="
-        ]
-      }
-    ]
+    "effective_condition": {
+      "exclusions": [
+        {
+          "key": "key",
+          "operator": "BinaryEquals",
+          "values": [
+            "QmluYXJ5VmFsdWVJbkJhc2U2NA=="
+          ]
+        }
+      ]
+    }
   }
 ]"""
     )

@@ -143,8 +143,6 @@ class PolicyShard(BaseModel):
     effective_resource: EffectiveARP[Resource]
     effective_principal: EffectiveARP[Principal]
     effective_condition: EffectiveCondition
-    conditions: FrozenSet[Condition]
-    not_conditions: FrozenSet[Condition]
 
     def __init__(
         self,
@@ -152,6 +150,7 @@ class PolicyShard(BaseModel):
         effective_action: EffectiveARP[Action],
         effective_resource: EffectiveARP[Resource],
         effective_principal: EffectiveARP[Principal],
+        effective_condition: EffectiveCondition = None,
         conditions: Optional[FrozenSet[Condition]] = None,
         not_conditions: Optional[FrozenSet[Condition]] = None,
     ) -> None:
@@ -162,19 +161,18 @@ class PolicyShard(BaseModel):
             effective_action: The EffectiveAction that this PolicyShard allows or denies
             effective_resource: The EffectiveResource that this PolicyShard allows or denies
             effective_principal: The EffectivePrincipal that this PolicyShard allows or denies
+            effective_condition: The EffectiveCondition that needs to be met for this PolicyShard to apply
             conditions: The conditions that must be met for this PolicyShard to take effect
             not_conditions: The conditions that must NOT be met for this PolicyShard to take effect
         """
-        effective_condition = EffectiveCondition.factory(conditions, not_conditions)
-        conditions, not_conditions = effective_condition
+        if conditions or not_conditions:
+            effective_condition = EffectiveCondition.factory(conditions, not_conditions)
         super().__init__(
             effect=effect,
             effective_action=effective_action,
             effective_resource=effective_resource,
             effective_principal=effective_principal,
-            effective_condition=effective_condition,
-            conditions=conditions,
-            not_conditions=not_conditions,
+            effective_condition=effective_condition or EffectiveCondition(frozenset(), frozenset()),
         )
 
     class Config:
@@ -212,7 +210,7 @@ class PolicyShard(BaseModel):
                 effective_action=effective_action,
                 effective_resource=effective_resource,
                 effective_principal=effective_principal,
-                conditions=self.conditions,
+                conditions=self.effective_condition.inclusions,
             )
             for effective_action in self.effective_action.union(other.effective_action)
             for effective_resource in self.effective_resource.union(other.effective_resource)
@@ -254,16 +252,18 @@ class PolicyShard(BaseModel):
             # such that self's conditions appliy and other's conditions do not.
             # i.e. we need to add another PolicyShard that is ALL the ARP differences
             # If self is Allow and other is Deny we must add the deny's conditions as not_conditions.
-            not_conditions = self.not_conditions
+            not_conditions = self.effective_condition.exclusions
             if self.effect == "Allow" and other.effect == "Deny":
-                not_conditions = frozenset(self.not_conditions.union(other.conditions))
+                not_conditions = frozenset(
+                    self.effective_condition.exclusions.union(other.effective_condition.inclusions)
+                )
             result.append(
                 self.__class__(
                     effect=self.effect,
                     effective_action=self.effective_action,
                     effective_resource=self.effective_resource,
                     effective_principal=self.effective_principal,
-                    conditions=self.conditions,
+                    conditions=self.effective_condition.inclusions,
                     not_conditions=not_conditions,
                 )
             )
@@ -298,8 +298,8 @@ class PolicyShard(BaseModel):
                         effective_action=difference_action,
                         effective_resource=resource,
                         effective_principal=principal,
-                        conditions=self.conditions,
-                        not_conditions=self.not_conditions,
+                        conditions=self.effective_condition.inclusions,
+                        not_conditions=self.effective_condition.exclusions,
                     )
                     for difference_action in difference_actions
                 ]
@@ -311,8 +311,8 @@ class PolicyShard(BaseModel):
                         effective_action=action,
                         effective_resource=difference_resource,
                         effective_principal=principal,
-                        conditions=self.conditions,
-                        not_conditions=self.not_conditions,
+                        conditions=self.effective_condition.inclusions,
+                        not_conditions=self.effective_condition.exclusions,
                     )
                     for difference_resource in difference_resources
                 ]
@@ -324,8 +324,8 @@ class PolicyShard(BaseModel):
                         effective_action=action,
                         effective_resource=resource,
                         effective_principal=difference_principal,
-                        conditions=self.conditions,
-                        not_conditions=self.not_conditions,
+                        conditions=self.effective_condition.inclusions,
+                        not_conditions=self.effective_condition.exclusions,
                     )
                     for difference_principal in difference_principals
                 ]
@@ -440,10 +440,12 @@ class PolicyShard(BaseModel):
         result = {}
         for attribute_name, attribute_value in self:
             if hasattr(attribute_value, "dict"):
-                result[attribute_name] = attribute_value.dict(*args, **kwargs)
+                value = attribute_value.dict(*args, **kwargs)
+                if not kwargs.get("exclude_defaults") or value:
+                    result[attribute_name] = value
             elif isinstance(attribute_value, (set, frozenset)):
                 value = list(attribute_value)
-                if not kwargs.get("exclude_defaults") or value != []:
+                if not kwargs.get("exclude_defaults") or value:
                     result[attribute_name] = value
 
         return result
@@ -493,8 +495,7 @@ class PolicyShard(BaseModel):
             f"effective_action={self.effective_action}, "
             f"effective_resource={self.effective_resource}, "
             f"effective_principal={self.effective_principal}, "
-            f"conditions={self.conditions}, "
-            f"not_conditions={self.not_conditions})"
+            f"effective_condition={self.effective_condition})"
         )
 
     def __str__(self) -> str:
