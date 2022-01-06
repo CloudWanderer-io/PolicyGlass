@@ -19,7 +19,7 @@ def test_json():
         effective_action=EffectiveAction(inclusion=Action("s3:*")),
         effective_resource=EffectiveResource(inclusion=Resource("*")),
         effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
-        effective_condition=EffectiveCondition.factory(frozenset([Condition("Key", "Operator", ["Value"])])),
+        effective_condition=EffectiveCondition(frozenset([Condition("Key", "Operator", ["Value"])])),
     )
 
     assert subject.json() == json.dumps(

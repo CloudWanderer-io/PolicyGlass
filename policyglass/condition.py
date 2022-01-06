@@ -1,7 +1,7 @@
 """Statement Condition classes."""
 
 
-from typing import Any, Dict, FrozenSet, List, NamedTuple, Optional
+from typing import Any, Dict, FrozenSet, Iterator, List, Optional, Tuple
 
 from pydantic import BaseModel
 
@@ -152,7 +152,7 @@ class Condition(BaseModel):
         return f"{self.key} {self.operator} {self.values}"
 
 
-class EffectiveCondition(NamedTuple):
+class EffectiveCondition(BaseModel):
     """A pair of sets for inclusions and exclusion conditions."""
 
     #: Conditions which must be met
@@ -160,10 +160,9 @@ class EffectiveCondition(NamedTuple):
     #: Conditions which must NOT be met
     exclusions: FrozenSet[Condition]
 
-    @classmethod
-    def factory(
-        cls, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
-    ) -> "EffectiveCondition":
+    def __init__(
+        self, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
+    ) -> None:
         """Convert ``not_conditions`` to ``conditions`` if possible.
 
         Parameters:
@@ -178,7 +177,7 @@ class EffectiveCondition(NamedTuple):
                 normalised_inclusions.add(not_condition.reverse)
             except ValueError:
                 normalised_exclusions.add(not_condition)
-        return EffectiveCondition(frozenset(normalised_inclusions), frozenset(normalised_exclusions))
+        super().__init__(inclusions=frozenset(normalised_inclusions), exclusions=frozenset(normalised_exclusions))
 
     def intersection(self, other: object) -> "EffectiveCondition":
         """Calculate the intersection between this object and another object of the same type.
@@ -208,11 +207,15 @@ class EffectiveCondition(NamedTuple):
         when placed in a set.
         """
         result = {}
-        for key, value in self._asdict().items():
+        for key, value in self:
             if not kwargs.get("exclude_defaults") or value != frozenset():
                 result[key] = value
 
         return result
+
+    def _iter(self, *args, **kwargs) -> Iterator[Tuple[str, Any]]:  # type: ignore[override]
+        for key, value in self.dict(*args, **kwargs).items():
+            yield key, value
 
     def __bool__(self) -> bool:
         """Return True if this object contains any values."""

@@ -27,7 +27,7 @@ def test_policy_shards_to_json():
             ),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 exclusions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])})
             ),
         ),

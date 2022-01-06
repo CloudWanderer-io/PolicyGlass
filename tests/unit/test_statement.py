@@ -44,7 +44,7 @@ def test_policy_shards_not_resource_condition():
                 inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
             ),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset(
                     {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
                 )

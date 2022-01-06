@@ -80,7 +80,7 @@ class Statement(BaseModel):
                         exclusions=frozenset(self.not_resource or {}),
                     ),
                     effective_principal=EffectivePrincipal(principal, exclusions=not_principals),
-                    effective_condition=EffectiveCondition.factory(conditions),
+                    effective_condition=EffectiveCondition(conditions),
                 )
             )
         return result

@@ -18,7 +18,7 @@ SHARD_MATCH_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {
                             Condition(
@@ -39,7 +39,7 @@ SHARD_MATCH_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {
                             Condition(
@@ -66,7 +66,7 @@ SHARD_NOT_MATCH_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
             ),
         ),
@@ -75,7 +75,7 @@ SHARD_NOT_MATCH_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset(
                     {
                         Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]),

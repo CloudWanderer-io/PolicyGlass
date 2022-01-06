@@ -11,9 +11,7 @@ def test_elimination():
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-        effective_condition=EffectiveCondition.factory(
-            frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})
-        ),
+        effective_condition=EffectiveCondition(frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})),
     )
 
     shard_b = PolicyShard(
@@ -21,9 +19,7 @@ def test_elimination():
         effective_action=EffectiveAction(inclusion=Action("s3:getobject"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-        effective_condition=EffectiveCondition.factory(
-            frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})
-        ),
+        effective_condition=EffectiveCondition(frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})),
     )
 
     assert shard_a.union(shard_b) == [shard_a]
@@ -60,9 +56,7 @@ def test_condition():
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-        effective_condition=EffectiveCondition.factory(
-            frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})
-        ),
+        effective_condition=EffectiveCondition(frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})),
     )
 
     assert shard_a.union(shard_b) == [shard_a]
@@ -74,7 +68,7 @@ def test_multiple_conditions():
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-        effective_condition=EffectiveCondition.factory(
+        effective_condition=EffectiveCondition(
             frozenset(
                 {
                     Condition("aws:username", "StringEquals", ["johndoe"]),
@@ -89,9 +83,7 @@ def test_multiple_conditions():
         effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
         effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
         effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-        effective_condition=EffectiveCondition.factory(
-            frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})
-        ),
+        effective_condition=EffectiveCondition(frozenset({Condition("aws:username", "StringEquals", ["johndoe"])})),
     )
 
     assert shard_a.union(shard_b) == [shard_b]

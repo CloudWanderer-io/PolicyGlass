@@ -42,7 +42,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])})
             ),
         ),
@@ -59,7 +59,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])})
             ),
         ),
@@ -76,7 +76,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset(
                     {
                         Condition(key="TestKey", operator="TestOperator", values=["TestValue"]),
@@ -90,7 +90,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])})
             ),
         ),
@@ -101,7 +101,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 inclusions=frozenset(
                     {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
                 ),
@@ -115,7 +115,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset(
                     {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
                 )
@@ -197,7 +197,7 @@ POLICY_SHARD_NOT_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset(
                     {
                         Condition(key="SomesTestKey", operator="TestOperator", values=["TestValue"]),
@@ -211,7 +211,7 @@ POLICY_SHARD_NOT_ISSUBSET_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="TestKey", operator="TestOperator", values=["TestValue"])})
             ),
         ),

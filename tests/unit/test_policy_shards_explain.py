@@ -18,7 +18,7 @@ def test_policy_shard_explain_attribute():
             inclusion=Principal(type="AWS", value="*"),
             exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/role-name")}),
         ),
-        effective_condition=EffectiveCondition.factory(
+        effective_condition=EffectiveCondition(
             inclusions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
             exclusions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
         ),
@@ -44,7 +44,7 @@ def test_explain_policy_shards_function():
             inclusion=Principal(type="AWS", value="*"),
             exclusions=frozenset({Principal("AWS", "arn:aws:iam::123456789012:role/role-name")}),
         ),
-        effective_condition=EffectiveCondition.factory(
+        effective_condition=EffectiveCondition(
             inclusions=frozenset({Condition("s3:x-amz-server-side-encryption", "StringNotEquals", ["AES256"])}),
             exclusions=frozenset({Condition("key", "BinaryEquals", ["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}),
         ),

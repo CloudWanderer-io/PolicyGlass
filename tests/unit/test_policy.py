@@ -60,7 +60,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {
                             Condition(
@@ -97,7 +97,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::111122223333:root"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
                 ),
             ),
@@ -110,7 +110,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::444455556666:root"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
                 ),
             ),
@@ -123,7 +123,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::111122223333:root"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
                 ),
             ),
@@ -136,7 +136,7 @@ POLICIES = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="arn:aws:iam::444455556666:root"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="s3:x-amz-acl", operator="StringEquals", values=["public-read"])})
                 ),
             ),

@@ -168,7 +168,7 @@ DIFFERENCE_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("*")),
             effective_resource=EffectiveResource(inclusion=Resource("*")),
             effective_principal=EffectivePrincipal(Principal("AWS", "arn:aws:iam::123456789012:root")),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])})
             ),
         ),
@@ -189,7 +189,7 @@ DIFFERENCE_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     exclusions=frozenset(
                         {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
                     )
@@ -211,7 +211,7 @@ DIFFERENCE_SCENARIOS = {
                 inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::DOC-EXAMPLE-BUCKET/*")})
             ),
             effective_principal=EffectivePrincipal(Principal("AWS", "*")),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])})
             ),
         ),
@@ -233,7 +233,7 @@ DIFFERENCE_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     exclusions=frozenset(
                         {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
                     )
@@ -335,7 +335,7 @@ DIFFERENCE_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset(
                     {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
                 )
@@ -346,7 +346,7 @@ DIFFERENCE_SCENARIOS = {
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
             ),
         ),
@@ -358,7 +358,7 @@ DIFFERENCE_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
                     )

@@ -257,7 +257,7 @@ class PolicyShard(BaseModel):
                     effective_action=self.effective_action,
                     effective_resource=self.effective_resource,
                     effective_principal=self.effective_principal,
-                    effective_condition=EffectiveCondition.factory(
+                    effective_condition=EffectiveCondition(
                         inclusions=self.effective_condition.inclusions,
                         exclusions=not_conditions,
                     ),
@@ -377,7 +377,7 @@ class PolicyShard(BaseModel):
             effective_action=intersection_action,
             effective_resource=intersection_resource,
             effective_principal=intersection_principal,
-            effective_condition=EffectiveCondition.factory(
+            effective_condition=EffectiveCondition(
                 inclusions=intersection_conditions, exclusions=intersection_not_conditions
             ),
         )

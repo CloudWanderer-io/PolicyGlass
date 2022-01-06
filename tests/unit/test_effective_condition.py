@@ -3,7 +3,7 @@ from policyglass import Condition, EffectiveCondition
 
 def test_factory():
 
-    subject = EffectiveCondition.factory(
+    subject = EffectiveCondition(
         inclusions=frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}),
         exclusions=frozenset(
             {

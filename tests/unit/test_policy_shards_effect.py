@@ -120,7 +120,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {
                             Condition(
@@ -137,7 +137,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
                 ),
             ),
@@ -152,7 +152,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {
                             Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
@@ -174,7 +174,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
                 ),
             ),
@@ -199,7 +199,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset({Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])})
                 ),
             ),
@@ -210,7 +210,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     frozenset(
                         {
                             Condition(
@@ -229,7 +229,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     inclusions=frozenset(
                         {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
                     ),
@@ -275,7 +275,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     inclusions=frozenset(
                         {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
                     ),
@@ -297,7 +297,7 @@ POLICY_SHARDS_EFFECT_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
-                effective_condition=EffectiveCondition.factory(
+                effective_condition=EffectiveCondition(
                     inclusions=frozenset(
                         {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
                     )
