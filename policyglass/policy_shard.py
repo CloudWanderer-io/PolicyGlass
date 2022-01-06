@@ -142,6 +142,7 @@ class PolicyShard(BaseModel):
     effective_action: EffectiveARP[Action]
     effective_resource: EffectiveARP[Resource]
     effective_principal: EffectiveARP[Principal]
+    effective_condition: EffectiveCondition
     conditions: FrozenSet[Condition]
     not_conditions: FrozenSet[Condition]
 
@@ -164,12 +165,14 @@ class PolicyShard(BaseModel):
             conditions: The conditions that must be met for this PolicyShard to take effect
             not_conditions: The conditions that must NOT be met for this PolicyShard to take effect
         """
-        conditions, not_conditions = EffectiveCondition.factory(conditions, not_conditions)
+        effective_condition = EffectiveCondition.factory(conditions, not_conditions)
+        conditions, not_conditions = effective_condition
         super().__init__(
             effect=effect,
             effective_action=effective_action,
             effective_resource=effective_resource,
             effective_principal=effective_principal,
+            effective_condition=effective_condition,
             conditions=conditions,
             not_conditions=not_conditions,
         )
@@ -196,7 +199,7 @@ class PolicyShard(BaseModel):
             raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
         if not other.issubset(self) and not self.issubset(other):
             return [self, other]
-        if self.conditions != other.conditions:
+        if self.effective_condition != other.effective_condition:
             if other.issubset(self):
                 return [self]
             if self.issubset(other):
@@ -246,9 +249,7 @@ class PolicyShard(BaseModel):
 
         result = self._decompose_difference(other)
 
-        if (other.conditions and self.conditions != other.conditions) or (
-            other.not_conditions and self.not_conditions != other.not_conditions
-        ):
+        if other.effective_condition and self.effective_condition != other.effective_condition:
             # If the other has a condition and it's not identical to self's, then there is difference
             # such that self's conditions appliy and other's conditions do not.
             # i.e. we need to add another PolicyShard that is ALL the ARP differences
@@ -354,23 +355,29 @@ class PolicyShard(BaseModel):
         if not intersection_action or not intersection_resource or not intersection_principal:
             return None
         if self.effect == other.effect:
-            if self.conditions and other.conditions and not self.conditions.intersection(other.conditions):
+            if (
+                self.effective_condition.inclusions
+                and other.effective_condition.inclusions
+                and not self.effective_condition.inclusions.intersection(other.effective_condition.inclusions)
+            ):
                 return None
             if (
-                self.not_conditions
-                and other.not_conditions
-                and not self.not_conditions.intersection(other.not_conditions)
+                self.effective_condition.exclusions
+                and other.effective_condition.exclusions
+                and not self.effective_condition.exclusions.intersection(other.effective_condition.exclusions)
             ):
                 return None
 
         # intersection conditions/not_conditions cannot be a proper subset of self's as if they were they would include
         # scenarios not originally included by self.
-        intersection_conditions = self.conditions.intersection(other.conditions)
-        if intersection_conditions < self.conditions:
-            intersection_conditions = self.conditions
-        intersection_not_conditions = self.not_conditions.intersection(other.not_conditions)
-        if intersection_not_conditions < self.conditions:
-            intersection_not_conditions = self.not_conditions
+        intersection_conditions = self.effective_condition.inclusions.intersection(other.effective_condition.inclusions)
+        if intersection_conditions < self.effective_condition.inclusions:
+            intersection_conditions = self.effective_condition.inclusions
+        intersection_not_conditions = self.effective_condition.exclusions.intersection(
+            other.effective_condition.exclusions
+        )
+        if intersection_not_conditions < self.effective_condition.exclusions:
+            intersection_not_conditions = self.effective_condition.exclusions
 
         return self.__class__(
             effect=self.effect,
@@ -397,13 +404,21 @@ class PolicyShard(BaseModel):
         """
         if not isinstance(other, self.__class__):
             raise ValueError(f"Cannot compare {self.__class__.__name__} and {other.__class__.__name__}")
-        if self.conditions and other.conditions and not other.conditions.issubset(self.conditions):
+        if (
+            self.effective_condition.inclusions
+            and other.effective_condition.inclusions
+            and not other.effective_condition.inclusions.issubset(self.effective_condition.inclusions)
+        ):
             return False
-        if self.not_conditions and other.not_conditions and not other.not_conditions.issubset(self.not_conditions):
+        if (
+            self.effective_condition.exclusions
+            and other.effective_condition.exclusions
+            and not other.effective_condition.exclusions.issubset(self.effective_condition.exclusions)
+        ):
             return False
-        if not self.conditions and other.conditions:
+        if not self.effective_condition.inclusions and other.effective_condition.inclusions:
             return False
-        if not self.not_conditions and other.not_conditions:
+        if not self.effective_condition.exclusions and other.effective_condition.exclusions:
             return False
         return (
             self.effective_action.issubset(other.effective_action)
@@ -462,11 +477,11 @@ class PolicyShard(BaseModel):
             principal_exclusions = ", ".join([str(principal) for principal in self.effective_principal.exclusions])
             explain_elements["arp_explain"] += f"(except principals {principal_exclusions}) "
 
-        if self.conditions:
-            conditions = " and ".join(sorted([str(condition) for condition in self.conditions]))
+        if self.effective_condition.inclusions:
+            conditions = " and ".join(sorted([str(condition) for condition in self.effective_condition.inclusions]))
             explain_elements["condition_explain"] = f"Provided conditions {conditions} are met"
-        if self.not_conditions:
-            not_conditions = " and ".join(sorted([str(condition) for condition in self.not_conditions]))
+        if self.effective_condition.exclusions:
+            not_conditions = " and ".join(sorted([str(condition) for condition in self.effective_condition.exclusions]))
             explain_elements["not_condition_explain"] = f"Unless conditions {not_conditions} are met"
 
         return ". ".join(element.strip() for element in explain_elements.values() if element) + "."
@@ -502,8 +517,7 @@ class PolicyShard(BaseModel):
             self.effective_action == other.effective_action
             and self.effective_resource == other.effective_resource
             and self.effective_principal == other.effective_principal
-            and self.conditions == other.conditions
-            and self.not_conditions == other.not_conditions
+            and self.effective_condition == other.effective_condition
         )
 
     def __lt__(self, other: object) -> bool:

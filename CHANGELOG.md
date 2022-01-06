@@ -1,3 +1,7 @@
+# 0.7.0
+
+- Added `__bool__` and `intersection` to `EffectiveCondition`
+
 # 0.6.0
 
 - Renamed `delineate_intersecting_shards` to `dedupe_policy_shards` to better reflect how people will use it.

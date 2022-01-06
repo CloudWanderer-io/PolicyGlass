@@ -180,6 +180,27 @@ class EffectiveCondition(NamedTuple):
                 normalised_exclusions.add(not_condition)
         return EffectiveCondition(frozenset(normalised_inclusions), frozenset(normalised_exclusions))
 
+    def intersection(self, other: object) -> "EffectiveCondition":
+        """Calculate the intersection between this object and another object of the same type.
+
+        Parameters:
+            other: The object to intersect with this one.
+
+        Raises:
+            ValueError: if ``other`` is not the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot intersect {self.__class__.__name__} with {other.__class__.__name__}")
+
+        return self.__class__(
+            inclusions=self.inclusions.intersection(other.inclusions),
+            exclusions=self.exclusions.intersection(other.exclusions),
+        )
+
+    def __bool__(self) -> bool:
+        """Return True if this object contains any values."""
+        return bool(self.inclusions) or bool(self.exclusions)
+
 
 class RawConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):
     """A representation of a statement condition."""
