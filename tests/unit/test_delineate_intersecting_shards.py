@@ -204,7 +204,7 @@ def test_matching_subset_conditions():
     ]
 
 
-def test_matching_subset_conditions_and_not_conditions():
+def test_matching_subset_conditions_and_condition_exclusions():
     shards = [
         PolicyShard(
             effect="Allow",

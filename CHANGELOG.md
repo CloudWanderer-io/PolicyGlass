@@ -3,6 +3,7 @@
 - Added `__bool__` and `intersection` to `EffectiveCondition`
 - Replaced `conditions` and `not_conditions` on `PolicyShard` with `effective_condition`
 - Fixed bug with `PolicyShard.union` where it lost `not_conditions`
+
 # 0.6.0
 
 - Renamed `delineate_intersecting_shards` to `dedupe_policy_shards` to better reflect how people will use it.
