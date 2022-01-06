@@ -27,7 +27,7 @@ Let's consider this scenario
 
     >>> from policyglass import PolicyShard
     >>> from policyglass.action import Action, EffectiveAction
-    >>> from policyglass.condition import Condition
+    >>> from policyglass.condition import Condition, EffectiveCondition
     >>> from policyglass.principal import EffectivePrincipal, Principal
     >>> from policyglass.resource import EffectiveResource, Resource
     >>> shard_a = PolicyShard(
@@ -35,23 +35,21 @@ Let's consider this scenario
     ...     effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})),
     ...     effective_resource=EffectiveResource(inclusion=Resource("*")),
     ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*")),
-    ...     conditions=frozenset(
+    ...     effective_condition=EffectiveCondition(frozenset(
     ...         {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
-    ...     ),
-    ...     not_conditions=frozenset(),
+    ...     )),
     ... )
     >>> shard_b = PolicyShard(
     ...     effect="Allow",
     ...     effective_action=EffectiveAction(inclusion=Action("s3:*")),
     ...     effective_resource=EffectiveResource(inclusion=Resource("*")),
     ...     effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*")),
-    ...     conditions=frozenset(
+    ...     effective_condition=EffectiveCondition(frozenset(
     ...         {
     ...             Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
     ...             Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]),
     ...         }
-    ...     ),
-    ...     not_conditions=frozenset(),
+    ...     )),
     ... )
 
 Shard A
@@ -79,21 +77,19 @@ To do this we use :func:`~policyglass.policy_shard.dedupe_policy_shards`
     ...     effective_action=EffectiveAction(inclusion=Action('s3:*'), exclusions=frozenset({Action('s3:PutObject')})), 
     ...     effective_resource=EffectiveResource(inclusion=Resource('*')),
     ...     effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*')), 
-    ...     conditions=frozenset(
+    ...     effective_condition=EffectiveCondition(frozenset(
     ...         {Condition(key='aws:PrincipalOrgId', operator='StringNotEquals', values=['o-123456'])}
-    ...     ), 
-    ...     not_conditions=frozenset()
+    ...     )), 
     ... )
     >>> assert shard_b_delineated == PolicyShard(
     ...    effect='Allow', 
     ...    effective_action=EffectiveAction(inclusion=Action('s3:PutObject')), 
     ...    effective_resource=EffectiveResource(inclusion=Resource('*')), 
     ...    effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*')), 
-    ...    conditions=frozenset({
+    ...    effective_condition=EffectiveCondition(frozenset({
     ...        Condition(key='aws:PrincipalOrgId', operator='StringNotEquals', values=['o-123456']),
     ...        Condition(key='s3:x-amz-server-side-encryption', operator='StringEquals', values=['AES256'])
-    ...    }), 
-    ...    not_conditions=frozenset()
+    ...    })), 
     ... )
 
 You'll notice that the intersection has been removed, as Shard B now only has ``s3:PutObject`` as the rest of ``s3:*`` was covered by Shard A.

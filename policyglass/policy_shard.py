@@ -245,12 +245,11 @@ class PolicyShard(BaseModel):
             # If the other has a condition and it's not identical to self's, then there is difference
             # such that self's conditions appliy and other's conditions do not.
             # i.e. we need to add another PolicyShard that is ALL the ARP differences
-            # If self is Allow and other is Deny we must add the deny's conditions as not_conditions.
-            not_conditions = self.effective_condition.exclusions
+            # If self is Allow and other is Deny we must add the deny's conditions as exclusions.
+            # These exclusions will probably be reversed by the __init__ of EffectiveCondition.
+            exclusions = self.effective_condition.exclusions
             if self.effect == "Allow" and other.effect == "Deny":
-                not_conditions = frozenset(
-                    self.effective_condition.exclusions.union(other.effective_condition.inclusions)
-                )
+                exclusions = frozenset(self.effective_condition.exclusions.union(other.effective_condition.inclusions))
             result.append(
                 self.__class__(
                     effect=self.effect,
@@ -259,7 +258,7 @@ class PolicyShard(BaseModel):
                     effective_principal=self.effective_principal,
                     effective_condition=EffectiveCondition(
                         inclusions=self.effective_condition.inclusions,
-                        exclusions=not_conditions,
+                        exclusions=exclusions,
                     ),
                 )
             )
@@ -474,11 +473,15 @@ class PolicyShard(BaseModel):
             explain_elements["arp_explain"] += f"(except principals {principal_exclusions}) "
 
         if self.effective_condition.inclusions:
-            conditions = " and ".join(sorted([str(condition) for condition in self.effective_condition.inclusions]))
-            explain_elements["condition_explain"] = f"Provided conditions {conditions} are met"
+            condition_inclusions = " and ".join(
+                sorted([str(condition) for condition in self.effective_condition.inclusions])
+            )
+            explain_elements["condition_inclusion_explain"] = f"Provided conditions {condition_inclusions} are met"
         if self.effective_condition.exclusions:
-            not_conditions = " and ".join(sorted([str(condition) for condition in self.effective_condition.exclusions]))
-            explain_elements["not_condition_explain"] = f"Unless conditions {not_conditions} are met"
+            condition_exclusions = " and ".join(
+                sorted([str(condition) for condition in self.effective_condition.exclusions])
+            )
+            explain_elements["condition_exclusion_explain"] = f"Unless conditions {condition_exclusions} are met"
 
         return ". ".join(element.strip() for element in explain_elements.values() if element) + "."
 

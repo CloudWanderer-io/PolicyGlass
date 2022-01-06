@@ -163,7 +163,11 @@ class EffectiveCondition(BaseModel):
     def __init__(
         self, inclusions: Optional[FrozenSet[Condition]] = None, exclusions: Optional[FrozenSet[Condition]] = None
     ) -> None:
-        """Convert ``not_conditions`` to ``conditions`` if possible.
+        """Convert ``exclusions`` to ``inclusions`` if possible.
+
+        The only type of Condition that really exists in AWS policies is the ``inclusions``. The ``exclusions`` are
+        created only when conditions on a ``Deny`` statement have operators that cannot be reversed. The reversal is
+        required in order to fold a Deny condition into an Allow condition.
 
         Parameters:
             inclusions: The conditions that must be met.
@@ -172,11 +176,11 @@ class EffectiveCondition(BaseModel):
         normalised_inclusions = set(inclusions or {})
         normalised_exclusions = set()
 
-        for not_condition in exclusions or {}:
+        for exclusion in exclusions or {}:
             try:
-                normalised_inclusions.add(not_condition.reverse)
+                normalised_inclusions.add(exclusion.reverse)
             except ValueError:
-                normalised_exclusions.add(not_condition)
+                normalised_exclusions.add(exclusion)
         super().__init__(inclusions=frozenset(normalised_inclusions), exclusions=frozenset(normalised_exclusions))
 
     def intersection(self, other: object) -> "EffectiveCondition":
@@ -220,6 +224,14 @@ class EffectiveCondition(BaseModel):
     def __bool__(self) -> bool:
         """Return True if this object contains any values."""
         return bool(self.inclusions) or bool(self.exclusions)
+
+    def __repr__(self) -> str:
+        """Return an instantiable representation of this object."""
+        return f"{self.__class__.__name__}(inclusions={self.inclusions}, exclusions={self.exclusions})"
+
+    def __str__(self) -> str:
+        """Return a string representation of this object."""
+        return repr(self)
 
 
 class RawConditionCollection(Dict[ConditionKey, Dict[ConditionOperator, List[ConditionValue]]]):

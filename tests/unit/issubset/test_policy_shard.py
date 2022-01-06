@@ -53,14 +53,16 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
         ),
     ],
-    "exactly_equal_but_not_condition": [
+    "exactly_equal_but_condition_exclusion": [
         PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
             effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
             effective_condition=EffectiveCondition(
-                frozenset({Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])})
+                exclusions=frozenset(
+                    {Condition(key="Key", operator="BinaryEquals", values=["QmluYXJ5VmFsdWVJbkJhc2U2NA=="])}
+                )
             ),
         ),
         PolicyShard(
@@ -95,7 +97,7 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             ),
         ),
     ],
-    "exactly_equal_but_one_has_not_condition": [
+    "exactly_equal_but_one_has_condition_exclusions": [
         PolicyShard(
             effect="Allow",
             effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
