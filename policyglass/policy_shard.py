@@ -89,6 +89,39 @@ def dedupe_policy_shards(shards: Iterable["PolicyShard"], check_reverse: bool = 
 def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
     """Calculate the effect of merging allow and deny shards together.
 
+    Example:
+        How to get the effective permissions of a policy as :class:`~policyglass.policy_shard.PolicyShard` objects.
+
+            >>> from policyglass import Policy, policy_shards_effect, explain_policy_shards
+            >>> policy = Policy(
+            ...     **{
+            ...         "Version": "2012-10-17",
+            ...         "Statement": [
+            ...             {
+            ...                 "Effect": "Allow",
+            ...                 "Action": ["s3:*"],
+            ...                 "Resource": "*",
+            ...             },
+            ...             {
+            ...                 "Effect": "Deny",
+            ...                 "Action": ["s3:Get*"],
+            ...                 "Resource": "*",
+            ...             },
+            ...         ],
+            ...     }
+            ... )
+            >>> policy_shards = policy.policy_shards
+            >>> policy_shards_effect(policy_shards)
+            [PolicyShard(effect='Allow',
+                effective_action=EffectiveAction(inclusion=Action('s3:*'),
+                    exclusions=frozenset({Action('s3:Get*')})),
+                effective_resource=EffectiveResource(inclusion=Resource('*'),
+                    exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(inclusion=Principal(type='AWS', value='*'),
+                    exclusions=frozenset()),
+                effective_condition=EffectiveCondition(inclusions=frozenset(),
+                    exclusions=frozenset()))]
+
     Parameters:
         shards: The shards to caclulate the effect of.
     """
@@ -110,7 +143,55 @@ def policy_shards_effect(shards: List["PolicyShard"]) -> List["PolicyShard"]:
 
 
 def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, **kwargs) -> str:
-    """Convert a list of :class:`policyglass.policy_shard.PolicyShard` objects to JSON.
+    """Convert a list of :class:`~policyglass.policy_shard.PolicyShard` objects to JSON.
+
+    Example:
+        How to get the effective permissions of a policy as json.
+
+            >>> from policyglass import Policy, policy_shards_effect, policy_shards_to_json
+            >>> policy = Policy(
+            ...     **{
+            ...         "Version": "2012-10-17",
+            ...         "Statement": [
+            ...             {
+            ...                 "Effect": "Allow",
+            ...                 "Action": ["s3:*"],
+            ...                 "Resource": "*",
+            ...             },
+            ...             {
+            ...                 "Effect": "Deny",
+            ...                 "Action": ["s3:Get*"],
+            ...                 "Resource": "*",
+            ...             },
+            ...         ],
+            ...     }
+            ... )
+            >>> policy_shards = policy.policy_shards
+            >>> output = policy_shards_to_json(
+            ...     policy_shards_effect(policy_shards),
+            ...     indent=2,
+            ...     exclude_defaults=True
+            ... )
+            >>> print(output)
+            [
+                {
+                    "effective_action": {
+                        "inclusion": "s3:*",
+                        "exclusions": [
+                            "s3:Get*"
+                        ]
+                    },
+                    "effective_resource": {
+                        "inclusion": "*"
+                    },
+                    "effective_principal": {
+                        "inclusion": {
+                            "type": "AWS",
+                            "value": "*"
+                        }
+                    }
+                }
+            ]
 
     Parameters:
         shards: The list of shards to convert.
@@ -122,6 +203,30 @@ def policy_shards_to_json(shards: List["PolicyShard"], exclude_defaults=False, *
 
 def explain_policy_shards(shards: List["PolicyShard"], language: str = "en") -> List[str]:
     """Return a list of string explanations for a given list of PolicyShards.
+
+    Example:
+        How to get the effective permissions of a policy as a plain English explanation.
+
+            >>> from policyglass import Policy, policy_shards_effect, explain_policy_shards
+            >>> policy = Policy(
+            ...     **{
+            ...         "Version": "2012-10-17",
+            ...         "Statement": [
+            ...             {
+            ...                 "Effect": "Allow",
+            ...                 "Action": ["s3:*"],
+            ...                 "Resource": "*",
+            ...             },
+            ...             {
+            ...                 "Effect": "Deny",
+            ...                 "Action": ["s3:Get*"],
+            ...                 "Resource": "*",
+            ...             },
+            ...         ],
+            ...     }
+            ... )
+            >>> explain_policy_shards(policy_shards_effect(policy.policy_shards))
+            ['Allow action s3:* (except for s3:Get*) on resource * with principal AWS *.']
 
     Parameters:
         shards: The PolicyShards to explain.
