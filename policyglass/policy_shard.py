@@ -243,7 +243,7 @@ class PolicyShard(BaseModel):
 
         if other.effective_condition and self.effective_condition != other.effective_condition:
             # If the other has a condition and it's not identical to self's, then there is difference
-            # such that self's conditions appliy and other's conditions do not.
+            # such that self's conditions apply and other's conditions do not.
             # i.e. we need to add another PolicyShard that is ALL the ARP differences
             # If self is Allow and other is Deny we must add the deny's conditions as exclusions.
             # These exclusions will probably be reversed by the __init__ of EffectiveCondition.

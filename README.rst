@@ -24,7 +24,7 @@ PolicyGlass
 | **Documentation**: `policyglass.cloudwanderer.io <https://policyglass.cloudwanderer.io>`__
 | **GitHub**: `https://github.com/CloudWanderer-io/PolicyGlass <https://github.com/CloudWanderer-io/PolicyGlass>`__
 
-PolicyGlass allows you to combine multiple AWS IAM policies/statements into their 'effective permissions', deduplicating permissions, and eliminating denied permissions along the way.
+PolicyGlass allows you to analyse one or more AWS policies' effective permissions in aggregate, by restating them in the form of PolicyShards which are always Allow, never Deny.
 
 PolicyGlass will **always** result in only allow ``PolicyShard`` objects, no matter how complex the policy. This makes understanding the effect of your policies programmatically a breeze.
 
