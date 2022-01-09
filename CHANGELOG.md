@@ -1,3 +1,11 @@
+# 0.8.0
+
+- `dedupe_policy_shard_subsets` now sorts input by `effective_resource` improving readability in scenarios with simple denies that deny both Action and Resource.
+- Added `union` to `EffectiveCondition`
+- Added `reverse` to `EffectiveCondition`
+- Fixed bug causing denies with multiple ARPs to deny more than they should because `PolicyShard.difference` didn't generate shards that accounted for one of the ARPs not being met.
+- Split out `_decompose_difference` into `_decompose_difference_arps_with_combined_conditions` and `_decompose_difference_arps_with_self_conditions`
+
 # 0.7.0
 
 - Added `__bool__` and `intersection` to `EffectiveCondition`

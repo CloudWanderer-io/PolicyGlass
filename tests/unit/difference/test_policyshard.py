@@ -285,14 +285,6 @@ DIFFERENCE_SCENARIOS = {
         "result": [
             PolicyShard(
                 effect="Allow",
-                effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset({Action("s3:PutObject")})),
-                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
-                effective_principal=EffectivePrincipal(
-                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
-                ),
-            ),
-            PolicyShard(
-                effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
@@ -300,6 +292,16 @@ DIFFERENCE_SCENARIOS = {
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
+                effective_condition=EffectiveCondition(inclusions=frozenset(), exclusions=frozenset()),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset({Action("s3:PutObject")})),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                effective_condition=EffectiveCondition(inclusions=frozenset(), exclusions=frozenset()),
             ),
         ],
     },
@@ -362,6 +364,87 @@ DIFFERENCE_SCENARIOS = {
                     frozenset(
                         {Condition(key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"])}
                     )
+                ),
+            ),
+        ],
+    },
+    "test_subset_arps_differing_conditions_allow_and_deny": {
+        "first": PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            effective_condition=EffectiveCondition(
+                inclusions=frozenset(
+                    {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                ),
+                exclusions=frozenset(),
+            ),
+        ),
+        "second": PolicyShard(
+            effect="Deny",
+            effective_action=EffectiveAction(inclusion=Action("s3:PutObject"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(
+                inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
+            ),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            effective_condition=EffectiveCondition(
+                inclusions=frozenset(
+                    {Condition(key="s3:x-amz-server-side-encryption", operator="StringNotEquals", values=["AES256"])}
+                ),
+                exclusions=frozenset(),
+            ),
+        ),
+        "result": [
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(
+                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
+                ),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                effective_condition=EffectiveCondition(
+                    inclusions=frozenset(
+                        {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    ),
+                    exclusions=frozenset(),
+                ),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(
+                    inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})
+                ),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                effective_condition=EffectiveCondition(
+                    inclusions=frozenset(
+                        {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    ),
+                    exclusions=frozenset(),
+                ),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                effective_condition=EffectiveCondition(
+                    inclusions=frozenset(
+                        {
+                            Condition(
+                                key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]
+                            ),
+                            Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
+                        }
+                    ),
+                    exclusions=frozenset(),
                 ),
             ),
         ],

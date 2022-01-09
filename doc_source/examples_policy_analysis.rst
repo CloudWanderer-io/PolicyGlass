@@ -57,11 +57,11 @@ To understand the policy, let's get the :meth:`~policyglass.policy_shard.policy_
     >>> test_policy_shards = policy_shards_effect(test_policy.policy_shards)
     >>> explain_policy_shards(test_policy_shards)
     ["Allow action s3:PutObject on resource * (except for arn:aws:s3:::examplebucket/*) with principal AWS *. 
-        Provided conditions s3:TlsVersion NumericLessThan ['1.2'] and 
-            s3:x-amz-server-side-encryption StringEquals ['AES256'] are met.", 
-    "Allow action s3:* (except for s3:PutObject) on resource * with principal AWS *. 
+        Provided conditions s3:TlsVersion NumericLessThan ['1.2'] and s3:x-amz-server-side-encryption StringEquals ['AES256'] are met.", 
+    "Allow action s3:* (except for s3:PutObject) on resource * (except for arn:aws:s3:::examplebucket/*) with principal AWS *. 
         Provided conditions s3:TlsVersion NumericLessThan ['1.2'] are met.", 
-    'Allow action s3:PutObject on resource arn:aws:s3:::examplebucket/* with principal AWS *.']
+    'Allow action s3:* on resource arn:aws:s3:::examplebucket/* with principal AWS *.']
+
 
 That helps clarify what the policy results in for humans. But what if we want to programatically ask a question about what this allows?
 

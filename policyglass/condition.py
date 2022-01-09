@@ -200,6 +200,28 @@ class EffectiveCondition(BaseModel):
             exclusions=self.exclusions.intersection(other.exclusions),
         )
 
+    def union(self, other: object) -> "EffectiveCondition":
+        """Combine this object with another object of the same type.
+
+        Parameters:
+            other: The object to combine with this one.
+
+        Raises:
+            ValueError: If ``other`` is not the same type as this object.
+        """
+        if not isinstance(other, self.__class__):
+            raise ValueError(f"Cannot union {self.__class__.__name__} with {other.__class__.__name__}")
+
+        return self.__class__(self.inclusions.union(other.inclusions), self.exclusions.union(other.exclusions))
+
+    @property
+    def reverse(self) -> "EffectiveCondition":
+        """Reverse the effect of this EffectiveCondition."""
+        return self.__class__(
+            inclusions=self.exclusions,
+            exclusions=self.inclusions,
+        )
+
     def dict(self, *args, **kwargs) -> Dict[str, Any]:
         """Convert instance to dict representation of it.
 
