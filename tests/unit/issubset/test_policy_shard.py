@@ -18,6 +18,22 @@ POLICYS_SHARD_ISSUBSET_SCENARIOS = {
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
         ),
     ],
+    "smaller_by_arp_exclusion": [
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:Get*")})),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            effective_condition=EffectiveCondition(inclusions=frozenset(), exclusions=frozenset()),
+        ),
+        PolicyShard(
+            effect="Allow",
+            effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+            effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+            effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
+            effective_condition=EffectiveCondition(inclusions=frozenset(), exclusions=frozenset()),
+        ),
+    ],
     "exactly_equal": [
         PolicyShard(
             effect="Allow",

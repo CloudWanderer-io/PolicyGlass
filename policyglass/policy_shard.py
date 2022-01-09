@@ -21,10 +21,13 @@ def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: 
     """
     deduped_shards: List[PolicyShard] = []
     removed_shards: List[PolicyShard] = []
+    sorted_shards = shards
 
     # Sorting by effective resource means that PolicyShards with larger resources will have any subsets
-    # folded into them first, improving readability
-    sorted_shards = sorted(shards, key=lambda x: x.effective_resource)
+    # folded into them first, improving readability. We only do this whenn check_reverse is true otherwise
+    # we won't respect the reverse order.
+    if check_reverse:
+        sorted_shards = sorted(shards, key=lambda x: x.effective_resource, reverse=True)
 
     for undeduped_shard in sorted_shards:
         if any(undeduped_shard.issubset(deduped_shard) for deduped_shard in deduped_shards):
