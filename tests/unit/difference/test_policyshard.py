@@ -283,23 +283,11 @@ DIFFERENCE_SCENARIOS = {
             effective_principal=EffectivePrincipal(inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()),
         ),
         "result": [
-            # The duplication in this output will get resolved by `dedupe_policy_shards`
             PolicyShard(
                 effect="Allow",
                 effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset()),
                 effective_resource=EffectiveResource(
                     inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
-                ),
-                effective_principal=EffectivePrincipal(
-                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
-                ),
-                effective_condition=EffectiveCondition(inclusions=frozenset(), exclusions=frozenset()),
-            ),
-            PolicyShard(
-                effect="Allow",
-                effective_action=EffectiveAction(inclusion=Action("*"), exclusions=frozenset({Action("s3:PutObject")})),
-                effective_resource=EffectiveResource(
-                    inclusion=Resource("arn:aws:s3:::examplebucket/*"), exclusions=frozenset()
                 ),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
@@ -315,7 +303,6 @@ DIFFERENCE_SCENARIOS = {
                 ),
                 effective_condition=EffectiveCondition(inclusions=frozenset(), exclusions=frozenset()),
             ),
-
         ],
     },
     "test_allow_with_exclusions": {
