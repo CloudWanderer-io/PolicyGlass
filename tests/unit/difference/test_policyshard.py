@@ -414,20 +414,34 @@ DIFFERENCE_SCENARIOS = {
             ),
             PolicyShard(
                 effect="Allow",
-                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
-                effective_resource=EffectiveResource(
-                    inclusion=Resource("*"), exclusions=frozenset({Resource("arn:aws:s3:::examplebucket/*")})
+                effective_action=EffectiveAction(
+                    inclusion=Action("s3:*"), exclusions=frozenset({Action("s3:PutObject")})
                 ),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
+                effective_principal=EffectivePrincipal(
+                    inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
+                ),
+                effective_condition=EffectiveCondition(
+                    inclusions=frozenset(
+                        {Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"])}
+                    ),
+                    exclusions=frozenset(),
+                ),
+            ),
+            PolicyShard(
+                effect="Allow",
+                effective_action=EffectiveAction(inclusion=Action("s3:*"), exclusions=frozenset()),
+                effective_resource=EffectiveResource(inclusion=Resource("*"), exclusions=frozenset()),
                 effective_principal=EffectivePrincipal(
                     inclusion=Principal(type="AWS", value="*"), exclusions=frozenset()
                 ),
                 effective_condition=EffectiveCondition(
                     inclusions=frozenset(
                         {
-                            Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
                             Condition(
                                 key="s3:x-amz-server-side-encryption", operator="StringEquals", values=["AES256"]
                             ),
+                            Condition(key="aws:PrincipalOrgId", operator="StringNotEquals", values=["o-123456"]),
                         }
                     ),
                     exclusions=frozenset(),

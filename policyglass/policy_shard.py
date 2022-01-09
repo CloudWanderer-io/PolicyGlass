@@ -360,19 +360,16 @@ class PolicyShard(BaseModel):
             # i.e. we need to add another PolicyShard that is ALL the ARP differences
             # If self is Allow and other is Deny we must add the deny's conditions as exclusions.
             # These exclusions will probably be reversed by the __init__ of EffectiveCondition.
-            exclusions = self.effective_condition.exclusions
-            if self.effect == "Allow" and other.effect == "Deny":
-                exclusions = frozenset(self.effective_condition.exclusions.union(other.effective_condition.inclusions))
+            effective_condition = self.effective_condition
+            if self.effect != other.effect:
+                effective_condition = self.effective_condition.union(other.effective_condition.reverse)
             result.append(
                 self.__class__(
                     effect=self.effect,
                     effective_action=self.effective_action,
                     effective_resource=self.effective_resource,
                     effective_principal=self.effective_principal,
-                    effective_condition=EffectiveCondition(
-                        inclusions=self.effective_condition.inclusions,
-                        exclusions=exclusions,
-                    ),
+                    effective_condition=effective_condition,
                 )
             )
         if dedupe_result:
@@ -391,50 +388,136 @@ class PolicyShard(BaseModel):
         difference_actions = self.effective_action.difference(other.effective_action)
         difference_resources = self.effective_resource.difference(other.effective_resource)
         difference_principals = self.effective_principal.difference(other.effective_principal)
+
         result = []
-        all_possible_combinations = [
-            (action, resource, principal)
-            for action in [self.effective_action, intersection.effective_action]
-            for resource in [self.effective_resource, intersection.effective_resource]
-            for principal in [self.effective_principal, intersection.effective_principal]
-        ]
-        for action, resource, principal in all_possible_combinations:
-            result.extend(
-                [
-                    self.__class__(
-                        effect=self.effect,
-                        effective_action=difference_action,
-                        effective_resource=resource,
-                        effective_principal=principal,
-                        effective_condition=self.effective_condition,
-                    )
-                    for difference_action in difference_actions
-                ]
-            )
-            result.extend(
-                [
-                    self.__class__(
-                        effect=self.effect,
-                        effective_action=action,
-                        effective_resource=difference_resource,
-                        effective_principal=principal,
-                        effective_condition=self.effective_condition,
-                    )
-                    for difference_resource in difference_resources
-                ]
-            )
-            result.extend(
-                [
-                    self.__class__(
-                        effect=self.effect,
-                        effective_action=action,
-                        effective_resource=resource,
-                        effective_principal=difference_principal,
-                        effective_condition=self.effective_condition,
-                    )
-                    for difference_principal in difference_principals
-                ]
-            )
+        result += self._decompose_difference_arps_with_combined_conditions(
+            other, intersection, difference_actions, difference_resources, difference_principals
+        )
+        result += self._decompose_difference_arps_with_self_conditions(
+            difference_actions, difference_resources, difference_principals
+        )
+        return result
+
+    def _decompose_difference_arps_with_combined_conditions(
+        self,
+        other: "PolicyShard",
+        intersection: "PolicyShard",
+        difference_actions: List[EffectiveARP[Action]],
+        difference_resources: List[EffectiveARP[Resource]],
+        difference_principals: List[EffectiveARP[Principal]],
+    ) -> List["PolicyShard"]:
+        """Return a PolicyShard centred around each intersection_<ARP> passed in.
+
+        If there is an EffectiveAction in intersection.effective_actions for example,
+        that means there is an action which both ``self`` and ``other`` cover.
+        Therefore we need to cover the scenario for that EffectiveAction with combined conditions.
+
+        Parameters:
+            other: The PolicyShard we're generating the difference against
+            intersection: The Policyshard representing the intersection between self and other
+            difference_actions: The diference between self's and other's effective_actions
+            difference_resources: The diference between self's and other's effective_resources
+            difference_principals: The diference between self's and other's effective_principals
+        """
+        if self.effect != other.effect:
+            effective_condition = self.effective_condition.union(other.effective_condition.reverse)
+        else:
+            effective_condition = self.effective_condition
+        result = []
+        result.extend(
+            [
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=difference_action,
+                    effective_resource=intersection.effective_resource,
+                    effective_principal=intersection.effective_principal,
+                    effective_condition=effective_condition,
+                )
+                for difference_action in difference_actions
+            ]
+        )
+        result.extend(
+            [
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=intersection.effective_action,
+                    effective_resource=difference_resource,
+                    effective_principal=intersection.effective_principal,
+                    effective_condition=effective_condition,
+                )
+                for difference_resource in difference_resources
+            ]
+        )
+        result.extend(
+            [
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=intersection.effective_action,
+                    effective_resource=intersection.effective_resource,
+                    effective_principal=difference_principal,
+                    effective_condition=effective_condition,
+                )
+                for difference_principal in difference_principals
+            ]
+        )
+        return result
+
+    def _decompose_difference_arps_with_self_conditions(
+        self,
+        difference_actions: List[EffectiveARP[Action]],
+        difference_resources: List[EffectiveARP[Resource]],
+        difference_principals: List[EffectiveARP[Principal]],
+    ) -> List["PolicyShard"]:
+        """Return a PolicyShard centred around each difference_<ARP> passed in.
+
+        If there is a EffectiveAction in difference_actions for example,
+        that means there is an action which ``self`` covers that ``other`` does not.
+        Therefore we need to cover the scenario for that EffectiveAction with JUST self.conditions.
+
+        Parameters:
+            difference_actions: The diference between self's and other's effective_actions
+            difference_resources: The diference between self's and other's effective_resources
+            difference_principals: The diference between self's and other's effective_principals
+        """
+        result = []
+        result.extend(
+            [
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=action,
+                    effective_resource=self.effective_resource,
+                    effective_principal=self.effective_principal,
+                    effective_condition=self.effective_condition,
+                )
+                for action in difference_actions
+            ]
+        )
+
+        result.extend(
+            [
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=self.effective_action,
+                    effective_resource=resource,
+                    effective_principal=self.effective_principal,
+                    effective_condition=self.effective_condition,
+                )
+                for resource in difference_resources
+            ]
+        )
+
+        result.extend(
+            [
+                self.__class__(
+                    effect=self.effect,
+                    effective_action=self.effective_action,
+                    effective_resource=self.effective_resource,
+                    effective_principal=principal,
+                    effective_condition=self.effective_condition,
+                )
+                for principal in difference_principals
+            ]
+        )
         return result
 
     def intersection(self, other: object) -> Optional["PolicyShard"]:
