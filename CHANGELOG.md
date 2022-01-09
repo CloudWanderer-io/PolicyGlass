@@ -1,3 +1,6 @@
+# 0.8.0
+
+- `dedupe_policy_shard_subsets` now sorts input by `effective_resource` improving readability in scenarios with simple denies that deny both Action and Resource.
 # 0.7.0
 
 - Added `__bool__` and `intersection` to `EffectiveCondition`

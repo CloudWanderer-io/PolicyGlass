@@ -21,7 +21,12 @@ def dedupe_policy_shard_subsets(shards: Iterable["PolicyShard"], check_reverse: 
     """
     deduped_shards: List[PolicyShard] = []
     removed_shards: List[PolicyShard] = []
-    for undeduped_shard in shards:
+
+    # Sorting by effective resource means that PolicyShards with larger resources will have any subsets
+    # folded into them first, improving readability
+    sorted_shards = sorted(shards, key=lambda x: x.effective_resource)
+
+    for undeduped_shard in sorted_shards:
         if any(undeduped_shard.issubset(deduped_shard) for deduped_shard in deduped_shards):
             removed_shards.append(undeduped_shard)
             continue
